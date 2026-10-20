@@ -8,32 +8,41 @@ st.set_page_config(
 )
 
 st.title("🏷️ Generatore di Codici a Barre")
-st.markdown("Inserisci i dati nei campi sottostanti. Puoi associare un'etichetta/nome a ciascun codice a barre.")
+st.markdown("Inserisci i dati nei campi sottostanti. Puoi associare Destinazione e Targa a ciascun codice a barre.")
 
 codes = []
 
 # Creiamo i 12 moduli di input
 for i in range(1, 13):
     st.markdown(f"##### 📍 Elemento {i}")
-    col_label, col_code = st.columns([1, 2])
+    col_dest, col_plate, col_code = st.columns([1, 1, 2])
     
-    with col_label:
-        label_val = st.text_input(
-            f"destination {i}", 
-            key=f"label_{i}", 
+    with col_dest:
+        dest_val = st.text_input(
+            f"Destinazione {i}", 
+            key=f"dest_{i}", 
             placeholder=f"Es. City"
+        )
+    
+    with col_plate:
+        plate_val = st.text_input(
+            f"Targa {i}", 
+            key=f"plate_{i}", 
+            placeholder=f"Es. AB123CD"
         )
     
     with col_code:
         code_val = st.text_input(
-            f"Numero {i}", 
+            f"Numero Barcode {i}", 
             key=f"code_{i}", 
             placeholder=f"Es. 12345{i}"
         )
     
-    # Se l'utente inserisce un'etichetta la usiamo, altrimenti usiamo "Posizione X"
-    final_label = label_val.strip() if label_val and label_val.strip() else f"Posizione {i}"
-    codes.append((final_label, code_val))
+    # Gestione etichetta di destinazione default se lasciata vuota
+    final_dest = dest_val.strip() if dest_val and dest_val.strip() else f"Posizione {i}"
+    final_plate = plate_val.strip() if plate_val and plate_val.strip() else ""
+    
+    codes.append((final_dest, final_plate, code_val))
 
 st.divider()
 st.subheader("📋 Sequenza Codici a Barre Generati")
@@ -41,12 +50,14 @@ st.subheader("📋 Sequenza Codici a Barre Generati")
 has_any_code = False
 
 # Visualizzazione in sequenza
-for label, code_val in codes:
+for dest, plate, code_val in codes:
     if code_val and code_val.strip():
         has_any_code = True
         
         with st.container():
-            st.markdown(f"### 🏷️ {label} — Valore: `{code_val.strip()}`")
+            # Mostra la destinazione e la targa (se inserita)
+            plate_info = f" | 🚘 Targa: `{plate}`" if plate else ""
+            st.markdown(f"### 🏷️ {dest}{plate_info} — Valore: `{code_val.strip()}`")
             
             img_bytes = generate_barcode_image(code_val)
             
@@ -59,4 +70,4 @@ for label, code_val in codes:
 
 if not has_any_code:
     st.info("ℹ️ Nessun numero inserito. Compila almeno un campo sopra per visualizzare il codice a barre corrispondente.")
-  
+    
