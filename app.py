@@ -8,7 +8,7 @@ st.set_page_config(
 )
 
 st.title("🏷️ Generatore di Codici a Barre")
-st.markdown("Inserisci i dati nei campi sottostanti. Puoi associare Destinazione e Targa a ciascun codice a barre.")
+st.markdown("Inserisci i dati nei campi sottostanti. Puoi associare Destinazione, Targa e linea a ciascun codice a barre.")
 
 codes = []
 
