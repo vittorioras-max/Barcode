@@ -19,7 +19,7 @@ for i in range(1, 13):
     
     with col_label:
         label_val = st.text_input(
-            f"Etichetta {i}", 
+            f"destination {i}", 
             key=f"label_{i}", 
             placeholder=f"Es. Destination"
         )
