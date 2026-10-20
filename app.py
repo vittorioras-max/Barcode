@@ -43,13 +43,13 @@ codes = []
 # Creiamo i 12 moduli di input
 for i in range(1, 13):
     st.markdown(f"##### 📍 Elemento {i}")
-    col_city, col_plate, col_code = st.columns([1, 1, 2])
+    col_dest, col_plate, col_code = st.columns([1, 1, 2])
     
-    with col_city:
-        city_val = st.text_input(
-            f"City {i}", 
-            key=f"city_{i}", 
-            placeholder=f"Es. La Spezia"
+    with col_dest:
+        dest_val = st.text_input(
+            f"Destinazione {i}", 
+            key=f"dest_{i}", 
+            placeholder=f"Es. Città"
         )
     
     with col_plate:
@@ -66,11 +66,11 @@ for i in range(1, 13):
             placeholder=f"Es. 12345{i}"
         )
     
-    final_city = city_val.strip() if city_val and city_val.strip() else f"Posizione {i}"
+    final_dest = dest_val.strip() if dest_val and dest_val.strip() else f"Posizione {i}"
     final_plate = plate_val.strip() if plate_val and plate_val.strip() else ""
     final_code = code_val.strip() if code_val and code_val.strip() else ""
     
-    codes.append((i, final_city, final_plate, final_code))
+    codes.append((i, final_dest, final_plate, final_code))
 
 st.divider()
 st.subheader("📋 Sequenza Codici a Barre Generati")
@@ -78,7 +78,7 @@ st.subheader("📋 Sequenza Codici a Barre Generati")
 has_any_code = False
 
 # Visualizzazione in sequenza
-for index, city, plate, code_val in codes:
+for index, dest, plate, code_val in codes:
     if plate or code_val:
         has_any_code = True
         
@@ -105,7 +105,7 @@ for index, city, plate, code_val in codes:
 
             plate_info = f" | 🚚 Targa: `{plate}`" if plate else ""
             code_info = f" | 🔢 Numero Linea: `{code_val}`" if code_val else ""
-            st.markdown(f"#### 📍 Linea {index}: **{city}**{plate_info}{code_info}")
+            st.markdown(f"#### 📍 Linea {index} — Città: **{dest}**{plate_info}{code_info}")
             
             st.markdown("---")
 
