@@ -21,7 +21,7 @@ for i in range(1, 13):
         dest_val = st.text_input(
             f"Destinazione {i}", 
             key=f"dest_{i}", 
-            placeholder=f"Es. La Spezia"
+            placeholder=f"Es. La city"
         )
     
     with col_plate:
@@ -33,7 +33,7 @@ for i in range(1, 13):
     
     with col_code:
         code_val = st.text_input(
-            f"Numero Barcode {i}", 
+            f"Numero Linea {i}", 
             key=f"code_{i}", 
             placeholder=f"Es. 12345{i}"
         )
@@ -77,7 +77,7 @@ for index, dest, plate, code_val in codes:
                         st.error("Errore generazione barcode numero.")
 
             # Dettagli della linea sotto
-            plate_info = f" | 🚘 Targa: `{plate}`" if plate else ""
+            plate_info = f" | 🚛 Targa: `{plate}`" if plate else ""
             code_info = f" | 🔢 Numero: `{code_val}`" if code_val else ""
             st.markdown(f"#### 📍 Linea {index}: **{dest}**{plate_info}{code_info}")
             
