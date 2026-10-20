@@ -22,7 +22,7 @@ def generate_barcode_image(number_str):
                 'dpi': 300, 
                 'font_size': 8, 
                 'text_distance': 2.0,
-                'module_height': 8.0,  # Mantiene l'altezza ridotta/bassa
+                'module_height': 9.0,  # Mantiene l'altezza ridotta/bassa
                 'module_width': 0.35   # Aumenta la larghezza delle singole barre
             }
         )
