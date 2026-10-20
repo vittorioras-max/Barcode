@@ -8,7 +8,7 @@ st.set_page_config(
 )
 
 st.title("🏷️ Generatore di Codici a Barre")
-st.markdown("Inserisci i dati nei campi sottostanti. I codici a barre compatti verranno generati per Targa e Numero.")
+st.markdown("Inserisci i dati nei campi sottostanti. I codici a barre compatti in altezza ma larghi verranno generati per Targa e Numero.")
 
 codes = []
 
@@ -21,7 +21,7 @@ for i in range(1, 13):
         dest_val = st.text_input(
             f"Destinazione {i}", 
             key=f"dest_{i}", 
-            placeholder=f"Es. La city"
+            placeholder=f"Es. La Spezia"
         )
     
     with col_plate:
@@ -33,7 +33,7 @@ for i in range(1, 13):
     
     with col_code:
         code_val = st.text_input(
-            f"Numero Linea {i}", 
+            f"Numero Barcode {i}", 
             key=f"code_{i}", 
             placeholder=f"Es. 12345{i}"
         )
@@ -55,7 +55,7 @@ for index, dest, plate, code_val in codes:
         has_any_code = True
         
         with st.container():
-            # Codici a barre più compatti in alto
+            # Codici a barre larghi ma bassi
             col_bc_plate, col_bc_num = st.columns(2)
             
             with col_bc_plate:
@@ -63,7 +63,7 @@ for index, dest, plate, code_val in codes:
                     st.markdown(f"**Targa:** `{plate}`")
                     img_plate = generate_barcode_image(plate)
                     if img_plate:
-                        st.image(img_plate, width=220)
+                        st.image(img_plate, use_container_width=True)
                     else:
                         st.error("Errore generazione barcode targa.")
             
@@ -72,7 +72,7 @@ for index, dest, plate, code_val in codes:
                     st.markdown(f"**Numero:** `{code_val}`")
                     img_code = generate_barcode_image(code_val)
                     if img_code:
-                        st.image(img_code, width=220)
+                        st.image(img_code, use_container_width=True)
                     else:
                         st.error("Errore generazione barcode numero.")
 
