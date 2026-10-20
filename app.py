@@ -21,7 +21,7 @@ for i in range(1, 13):
         label_val = st.text_input(
             f"destination {i}", 
             key=f"label_{i}", 
-            placeholder=f"Es. Destination"
+            placeholder=f"Es. City"
         )
     
     with col_code:
