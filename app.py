@@ -21,7 +21,7 @@ for i in range(1, 13):
         dest_val = st.text_input(
             f"Destinazione {i}", 
             key=f"dest_{i}", 
-            placeholder=f"Es. La Spezia"
+            placeholder=f"Es. city"
         )
     
     with col_plate:
@@ -33,7 +33,7 @@ for i in range(1, 13):
     
     with col_code:
         code_val = st.text_input(
-            f"Numero Barcode {i}", 
+            f"Numero linea {i}", 
             key=f"code_{i}", 
             placeholder=f"Es. 12345{i}"
         )
