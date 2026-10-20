@@ -20,9 +20,9 @@ def generate_barcode_image(number_str):
             options={
                 'write_text': True, 
                 'dpi': 300, 
-                'font_size': 8, 
+                'font_size': 6, 
                 'text_distance': 2.0,
-                'module_height': 9.0,  # Mantiene l'altezza ridotta/bassa
+                'module_height': 12.0,  # Mantiene l'altezza ridotta/bassa
                 'module_width': 0.35   # Aumenta la larghezza delle singole barre
             }
         )
