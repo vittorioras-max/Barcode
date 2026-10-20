@@ -7,8 +7,41 @@ st.set_page_config(
     layout="wide"
 )
 
+# --- SISTEMA DI AUTENTICAZIONE CON SECRETS ---
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.title("🔒 Accesso Riservato")
+    st.markdown("Inserisci la password per accedere al generatore di codici a barre.")
+    
+    # Casella di input password
+    pwd_input = st.text_input("Password", type="password")
+    
+    if st.button("Accedi", type="primary"):
+        # Controlla la password confrontandola con i secrets di Streamlit
+        # (Legge PASSWORD configurata su Streamlit Cloud)
+        correct_password = st.secrets.get("PASSWORD", "Wilson") # Fallback di sicurezza su Wilson
+        
+        if pwd_input == correct_password:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("❌ Password errata. Riprova.")
+            
+    # Interrompe l'esecuzione del resto dell'app se non autenticato
+    st.stop()
+
+# --- APPLICAZIONE PRINCIPALE (Visibile solo dopo il login) ---
 st.title("🏷️ Generatore di Codici a Barre")
 st.markdown("Inserisci i dati nei campi sottostanti. I codici a barre compatti in altezza ma larghi verranno generati per Targa e Numero.")
+
+# Pulsante di logout opzionale in alto a destra
+col_title, col_logout = st.columns([6, 1])
+with col_logout:
+    if st.button("🚪 Esci"):
+        st.session_state.authenticated = False
+        st.rerun()
 
 codes = []
 
@@ -21,7 +54,7 @@ for i in range(1, 13):
         dest_val = st.text_input(
             f"Destinazione {i}", 
             key=f"dest_{i}", 
-            placeholder=f"Es. city"
+            placeholder=f"Es. La Spezia"
         )
     
     with col_plate:
@@ -33,7 +66,7 @@ for i in range(1, 13):
     
     with col_code:
         code_val = st.text_input(
-            f"Numero linea {i}", 
+            f"Numero Barcode {i}", 
             key=f"code_{i}", 
             placeholder=f"Es. 12345{i}"
         )
@@ -55,7 +88,6 @@ for index, dest, plate, code_val in codes:
         has_any_code = True
         
         with st.container():
-            # Codici a barre larghi ma bassi
             col_bc_plate, col_bc_num = st.columns(2)
             
             with col_bc_plate:
@@ -76,8 +108,7 @@ for index, dest, plate, code_val in codes:
                     else:
                         st.error("Errore generazione barcode numero.")
 
-            # Dettagli della linea sotto
-            plate_info = f" | 🚛 Targa: `{plate}`" if plate else ""
+            plate_info = f" | 🚘 Targa: `{plate}`" if plate else ""
             code_info = f" | 🔢 Numero: `{code_val}`" if code_val else ""
             st.markdown(f"#### 📍 Linea {index}: **{dest}**{plate_info}{code_info}")
             
@@ -85,4 +116,3 @@ for index, dest, plate, code_val in codes:
 
 if not has_any_code:
     st.info("ℹ️ Nessun dato inserito. Compila Targa o Numero in almeno un campo sopra.")
-    
