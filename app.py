@@ -47,9 +47,9 @@ for i in range(1, 13):
     
     with col_city:
         city_val = st.text_input(
-            f"destination {i}", 
-            key=f"destination_{i}", 
-            placeholder=f"Es. City"
+            f"City {i}", 
+            key=f"city_{i}", 
+            placeholder=f"Es. La Spezia"
         )
     
     with col_plate:
@@ -105,10 +105,9 @@ for index, city, plate, code_val in codes:
 
             plate_info = f" | 🚚 Targa: `{plate}`" if plate else ""
             code_info = f" | 🔢 Numero Linea: `{code_val}`" if code_val else ""
-            st.markdown(f"#### 📍 Linea {index}: **{destination}**{plate_info}{code_info}")
+            st.markdown(f"#### 📍 Linea {index}: **{city}**{plate_info}{code_info}")
             
             st.markdown("---")
 
 if not has_any_code:
     st.info("ℹ️ Nessun dato inserito. Compila Targa o Numero Linea in almeno un campo sopra.")
-    
