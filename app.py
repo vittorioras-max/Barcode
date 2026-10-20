@@ -33,7 +33,7 @@ for i in range(1, 13):
     
     with col_code:
         code_val = st.text_input(
-            f"Numero Barcode {i}", 
+            f"Numero linea {i}", 
             key=f"code_{i}", 
             placeholder=f"Es. 12345{i}"
         )
@@ -56,7 +56,7 @@ for dest, plate, code_val in codes:
         
         with st.container():
             # Mostra la destinazione e la targa (se inserita)
-            plate_info = f" | 🚘 Targa: `{plate}`" if plate else ""
+            plate_info = f" | 🚛 Targa: `{plate}`" if plate else ""
             st.markdown(f"### 🏷️ {dest}{plate_info} — Valore: `{code_val.strip()}`")
             
             img_bytes = generate_barcode_image(code_val)
