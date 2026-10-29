@@ -8,8 +8,9 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# Controllo Password dai Secrets di Streamlit
+# Controllo Password sicuro dai Secrets di Streamlit
 def check_password():
+    # Se non è impostata alcuna password nei secrets, salta il login per evitare blocchi
     if "password" not in st.secrets:
         return True
     
@@ -20,7 +21,8 @@ def check_password():
         st.title("🔒 Accesso Riservato")
         pwd = st.text_input("Inserisci la password:", type="password")
         if st.button("Accedi"):
-            if pwd == st.secrets["password"]:
+            # Confronto pulito rimuovendo spazi accidentali
+            if pwd.strip() == str(st.secrets["password"]).strip():
                 st.session_state.authenticated = True
                 st.rerun()
             else:
@@ -147,4 +149,3 @@ if check_password():
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
-            
