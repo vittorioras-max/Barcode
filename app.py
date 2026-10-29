@@ -99,4 +99,52 @@ if check_password():
 
         @st.cache_data(ttl=60)
         def load_sheet_data(url):
-            return pd.read_csv
+            return pd.read_csv(url)
+
+        try:
+            df = load_sheet_data(CSV_URL)
+            
+            # Pulizia nomi colonne
+            df.columns = [str(col).strip().lower() for col in df.columns]
+
+            # Converte in stringa e rimuove il .0 se presente
+            if 'linea' in df.columns:
+                df['linea'] = df['linea'].astype(str).str.replace('.0', '', regex=False)
+                df_valid = df[df['linea'].str.lower() != 'nan'].copy()
+            else:
+                df_valid = df.copy()
+
+            if df_valid.empty:
+                st.warning("Il foglio Google non contiene righe con numeri di linea compilati.")
+            else:
+                st.success(f"Caricate {len(df_valid)} linee in ordine dal foglio!")
+                
+                for idx, row in df_valid.reset_index(drop=True).iterrows():
+                    citta_val = str(row.get('città', '')).replace('nan', '').strip()
+                    linea_val = str(row.get('linea', '')).replace('nan', '').strip()
+                    targa_val = str(row.get('targa', '')).replace('nan', '').strip()
+                    partenza_val = str(row.get('partenza', '')).replace('nan', '').strip()
+
+                    if not linea_val or linea_val == '':
+                        continue
+
+                    st.markdown(f"### 🚚 {citta_val}")
+                    
+                    info_text = []
+                    if targa_val:
+                        info_text.append(f"**Targa:** {targa_val}")
+                    if partenza_val:
+                        info_text.append(f"**Partenza:** {partenza_val}")
+                    if info_text:
+                        st.write(" | ".join(info_text))
+                        
+                    st.write(f"**Linea:** `{linea_val}`")
+
+                    b64_img = generate_barcode_base64(linea_val)
+                    if b64_img:
+                        st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
+                    st.markdown("---")
+
+        except Exception as e:
+            st.error(f"Errore durante il caricamento del foglio Google: {e}")
+            
