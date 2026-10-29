@@ -6,7 +6,7 @@ import io
 import base64
 
 # Configurazione Pagina
-st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="wide")
+st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
 # Controllo Password (Se presente nei secrets)
 def check_password():
@@ -30,9 +30,9 @@ def check_password():
 
 if check_password():
 
-    # Funzione per generare il Code 128 in base64 (con altezza dimezzata a 5.0)
+    # Funzione per generare il Code 128 in base64 (altezza dimezzata a 5.0)
     def generate_barcode_base64(value):
-        if not value or str(value).strip() == "" or str(value).strip().lower() == "nan":
+        if not value or str(value).strip() == "" or str(value).strip().lower() == "nan" or str(value).strip() == "none":
             return None
         try:
             CODE128 = barcode.get_barcode_class('code128')
@@ -50,8 +50,8 @@ if check_password():
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
         [
-            "📋 Modalità 1: Inserimento Manuale (Modulo Singolo)", 
-            "📊 Modalità 2: Caricamento Automatico da Google Sheets (città_linea)"
+            "📋 Modalità 1: Inserimento Manuale", 
+            "📊 Modalità 2: Google Sheets (città_linea)"
         ],
         horizontal=True
     )
@@ -68,36 +68,33 @@ if check_password():
         if "manual_data" not in st.session_state:
             st.session_state.manual_data = [{"destinazione": "", "targa": "", "linea": ""} for _ in range(12)]
 
-        cols = st.columns(2)
-        
         for idx in range(12):
-            with cols[idx % 2]:
-                st.markdown(f"##### Linea {idx + 1}")
-                c1, c2, c3 = st.columns([2, 2, 2])
-                
-                dest = c1.text_input(f"Destinazione #{idx+1}", value=st.session_state.manual_data[idx]["destinazione"], placeholder="città", key=f"dest_{idx}")
-                targa = c2.text_input(f"Targa #{idx+1}", value=st.session_state.manual_data[idx]["targa"], placeholder="Targa", key=f"targa_{idx}")
-                linea = c3.text_input(f"Numero Linea #{idx+1}", value=st.session_state.manual_data[idx]["linea"], placeholder="Num. Linea", key=f"linea_{idx}")
-                
-                st.session_state.manual_data[idx] = {"destinazione": dest, "targa": targa, "linea": linea}
+            st.markdown(f"##### Linea {idx + 1}")
+            c1, c2, c3 = st.columns(3)
+            
+            dest = c1.text_input(f"Destinazione #{idx+1}", value=st.session_state.manual_data[idx]["destinazione"], placeholder="città", key=f"dest_{idx}")
+            targa = c2.text_input(f"Targa #{idx+1}", value=st.session_state.manual_data[idx]["targa"], placeholder="Targa", key=f"targa_{idx}")
+            linea = c3.text_input(f"Num. Linea #{idx+1}", value=st.session_state.manual_data[idx]["linea"], placeholder="Linea", key=f"linea_{idx}")
+            
+            st.session_state.manual_data[idx] = {"destinazione": dest, "targa": targa, "linea": linea}
 
-                if linea:
-                    b64_img = generate_barcode_base64(linea)
-                    if b64_img:
-                        st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
-                st.markdown("---")
+            if linea:
+                b64_img = generate_barcode_base64(linea)
+                if b64_img:
+                    st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
+            st.markdown("---")
 
     # ==========================================
     # MODALITÀ 2: GOOGLE SHEETS AUTOMATICO
     # ==========================================
     else:
-        st.subheader("📊 Caricamento Automatico da Google Sheets")
-        st.caption("I dati vengono letti direttamente dal foglio online `città_linea` rispettando l'ordine delle righe.")
+        st.subheader("📊 Google Sheets: città_linea")
+        st.caption("Lettura automatica in tempo reale dal foglio Google.")
 
         SHEET_ID = "1-EM7rpDYaj1VF_JvFCD6rAdwVox_adkJdFkgqmN30Ew"
         CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
 
-        if st.button("🔄 Ricarica Dati da Google Sheets"):
+        if st.button("🔄 Ricarica Dati"):
             st.cache_data.clear()
 
         @st.cache_data(ttl=60)
@@ -110,49 +107,44 @@ if check_password():
             # Pulizia nomi colonne
             df.columns = [str(col).strip().lower() for col in df.columns]
 
-            # Mantiene l'ordine esatto del file rimuovendo solo le righe completamente vuote o senza linea
+            # Converte in stringa e rimuove il .0 se presente dai numeri interi del foglio
             if 'linea' in df.columns:
-                df_valid = df.dropna(subset=['linea']).copy()
+                df['linea'] = df['linea'].astype(str).str.replace('.0', '', regex=False)
+                df_valid = df[df['linea'].str.lower() != 'nan'].copy()
             else:
                 df_valid = df.copy()
 
             if df_valid.empty:
-                st.warning("Il foglio Google è collegato ma non contiene righe con numeri di linea compilati.")
+                st.warning("Il foglio Google non contiene righe con numeri di linea compilati.")
             else:
-                st.success(f"Caricate con successo {len(df_valid)} linee dal foglio Google!")
-                
-                grid_cols = st.columns(2)
+                st.success(f"Caricate {len(df_valid)} linee in ordine dal foglio!")
                 
                 for idx, row in df_valid.reset_index(drop=True).iterrows():
-                    citta_val = str(row.get('città', '')).replace('nan', '')
-                    linea_val = str(row.get('linea', '')).replace('nan', '')
-                    targa_val = str(row.get('targa', '')).replace('nan', '')
-                    partenza_val = str(row.get('partenza', '')).replace('nan', '')
+                    citta_val = str(row.get('città', '')).replace('nan', '').strip()
+                    linea_val = str(row.get('linea', '')).replace('nan', '').strip()
+                    targa_val = str(row.get('targa', '')).replace('nan', '').strip()
+                    partenza_val = str(row.get('partenza', '')).replace('nan', '').strip()
 
-                    if not linea_val:
+                    if not linea_val or linea_val == '':
                         continue
 
-                    col_target = grid_cols[idx % 2]
+                    st.markdown(f"### 🚚 {citta_val}")
                     
-                    with col_target:
-                        st.markdown(f"### 🚚 {citta_val}")
+                    info_text = []
+                    if targa_val:
+                        info_text.append(f"**Targa:** {targa_val}")
+                    if partenza_val:
+                        info_text.append(f"**Partenza:** {partenza_val}")
+                    if info_text:
+                        st.write(" | ".join(info_text))
                         
-                        info_text = []
-                        if targa_val:
-                            info_text.append(f"**Targa:** {targa_val}")
-                        if partenza_val:
-                            info_text.append(f"**Partenza:** {partenza_val}")
-                        if info_text:
-                            st.write(" | ".join(info_text))
-                            
-                        st.write(f"**Linea:** `{linea_val}`")
+                    st.write(f"**Linea:** `{linea_val}`")
 
-                        b64_img = generate_barcode_base64(linea_val)
-                        if b64_img:
-                            st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
-                        st.markdown("---")
+                    b64_img = generate_barcode_base64(linea_val)
+                    if b64_img:
+                        st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
+                    st.markdown("---")
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
-            st.info("Verifica che il foglio sia condiviso pubblicamente in modalità visualizzazione.")
             
