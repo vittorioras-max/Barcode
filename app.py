@@ -8,53 +8,44 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# --- CSS DEFINITIVO PER STAMPA PULITA (SOLO DATI IN 1-2 PAGINE) ---
+# --- CSS CORRETTO PER STAMPA PDF (SENZA PAGINE BIANCHE) ---
 st.markdown("""
     <style>
     @media print {
-        /* Nasconde tutto ciò che non fa parte dell'elenco delle linee */
-        header, footer, .stSidebar, .stRadio, button, .stButton, .stTextInput, .stAlert, h1, h2 {
+        /* Nasconde in modo sicuro sidebar, header, footer, bottoni e input in stampa */
+        [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, 
+        .stButton, .stRadio, .stTextInput, .stAlert, button {
             display: none !important;
         }
-        body * {
-            visibility: hidden;
-        }
-        .print-container, .print-container * {
-            visibility: visible;
-        }
-        .print-container {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-        }
+        /* Configura la pagina stampabile in bianco e nero con margini ridotti */
         body, .stApp {
             background: white !important;
             color: black !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 5px !important;
         }
+        /* Evita che una singola linea venga spezzata tra una pagina e l'altra */
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
-            margin-bottom: 3px !important;
+            margin-bottom: 4px !important;
             padding: 2px !important;
         }
         h3 {
-            font-size: 11px !important;
+            font-size: 12px !important;
             margin: 2px 0 1px 0 !important;
         }
         p, div, span {
-            font-size: 9px !important;
+            font-size: 10px !important;
             margin: 0 !important;
             padding: 0 !important;
         }
         hr {
             margin: 2px 0 !important;
-            border-color: #ddd !important;
+            border-color: #ccc !important;
         }
         img {
-            max-height: 32px !important;
+            max-height: 35px !important;
             width: auto !important;
         }
     }
@@ -111,7 +102,7 @@ if check_password():
             st.session_state.authenticated = False
             st.rerun()
         st.markdown("---")
-        st.info("💡 **Nota Stampa:**\nI menu e le intestazioni vengono nascosti automaticamente in stampa per fare entrare tutte le linee in 1 o 2 pagine A4.")
+        st.info("💡 **Nota Stampa:**\nI menu e i comandi vengono nascosti automaticamente in stampa per fare entrare tutto in 1 o 2 pagine.")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
@@ -185,9 +176,6 @@ if check_password():
             else:
                 st.success(f"Caricate {len(df_valid)} linee in ordine dal foglio!")
                 
-                # Contenitore isolato esclusivamente per la stampa
-                st.markdown('<div class="print-container">', unsafe_allow_html=True)
-                
                 for idx, row in df_valid.reset_index(drop=True).iterrows():
                     citta_val = str(row.get('città', '')).replace('nan', '').strip()
                     linea_val = str(row.get('linea', '')).replace('nan', '').strip()
@@ -197,6 +185,7 @@ if check_password():
                     if not linea_val or linea_val == '':
                         continue
 
+                    # Blocco protetto per la stampa
                     st.markdown('<div class="print-card">', unsafe_allow_html=True)
                     
                     st.markdown(f"### 🚚 {citta_val}")
@@ -217,8 +206,6 @@ if check_password():
                     
                     st.markdown("---")
                     st.markdown('</div>', unsafe_allow_html=True)
-                
-                st.markdown('</div>', unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
