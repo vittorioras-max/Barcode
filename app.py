@@ -8,36 +8,67 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# --- CSS CON STAMPA A 2 COLONNE FORZATA (COLUMN-COUNT) ---
-st.markdown("""
+# --- FUNZIONE GENERAZIONE BARCODE ---
+def generate_barcode_base64(value):
+    if not value or str(value).strip() == "" or str(value).strip().lower() == "nan" or str(value).strip() == "none":
+        return None
+    try:
+        CODE128 = barcode.get_barcode_class('code128')
+        rv = io.BytesIO()
+        val_str = str(value).split('.')[0].strip()
+        code = CODE128(val_str, writer=ImageWriter())
+        code.write(rv, options={"module_height": 7.0, "module_width": 0.4, "font_size": 4, "text_distance": 1.5, "quiet_zone": 1.0})
+        return base64.b64encode(rv.getvalue()).decode("utf-8")
+    except Exception as e:
+        return None
+
+# Generiamo l'immagine fissa per STAT77 in MAIUSCOLO
+stat77_b64 = generate_barcode_base64("STAT77")
+stat77_img_tag = f'<img src="data:image/png;base64,{stat77_b64}">' if stat77_b64 else ''
+
+# --- CSS CON STAMPA A 2 COLONNE E BARCODE STAT77 IN CIMA ---
+st.markdown(f"""
     <style>
     /* Colore chiaro per i testi informativi a schermo scuro */
-    .info-line {
+    .info-line {{
         font-size: 13px !important;
         color: #d1d5db !important;
         margin-bottom: 2px !important;
-    }
-    @media print {
+    }}
+    @media print {{
         [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, 
-        .stButton, .stRadio, .stTextInput, .stAlert, button {
+        .stButton, .stRadio, .stTextInput, .stAlert, button {{
             display: none !important;
-        }
-        body, .stApp {
+        }}
+        body, .stApp {{
             background: white !important;
             color: black !important;
             margin: 0 !important;
             padding: 2mm !important;
-        }
-        div[data-testid="stVerticalBlock"] {
+        }}
+        div[data-testid="stVerticalBlock"] {{
             gap: 0px !important;
-        }
-        /* Utilizzo di column-count per garantire le 2 colonne reali in stampa PDF mobile */
-        .print-grid {
+        }}
+        
+        /* Sezione STAT77 visibile SOLO in stampa in cima alla pagina */
+        .print-header-stat77 {{
+            display: block !important;
+            width: 100% !important;
+            text-align: center !important;
+            margin-bottom: 10px !important;
+            padding-bottom: 5px !important;
+            border-bottom: 2px solid #000 !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+        }}
+
+        /* Utilizzo di column-count per le 2 colonne reali in stampa */
+        .print-grid {{
             column-count: 2 !important;
             column-gap: 8px !important;
             width: 100% !important;
-        }
-        .print-card {
+        }}
+        .print-card {{
             page-break-inside: avoid;
             break-inside: avoid;
             margin-bottom: 4px !important;
@@ -45,18 +76,36 @@ st.markdown("""
             border-bottom: 1px solid #ddd !important;
             display: inline-block !important;
             width: 100% !important;
-        }
-        .info-line {
+        }}
+        .info-line {{
             color: #000 !important;
             font-size: 13px !important;
-        }
-        img {
-            max-height: 32px !important;
+        }}
+        code {{
+            background: none !important;
+            color: #000 !important;
+            border: none !important;
+            padding: 0 !important;
+            font-weight: bold !important;
+        }}
+        img {{
+            max-height: 38px !important;
+            max-width: 100% !important;
             width: auto !important;
             margin-top: 1px !important;
-        }
-    }
+        }}
+    }}
+    /* Nascosto a schermo normale, visibile solo durante la stampa */
+    .print-header-stat77 {{
+        display: none;
+    }}
     </style>
+
+    <!-- Header STAT77 in MAIUSCOLO che comparirà in cima alla pagina stampata/PDF -->
+    <div class="print-header-stat77">
+        <div style="font-weight: bold; font-size: 14px; margin-bottom: 2px;">STAT77</div>
+        {stat77_img_tag}
+    </div>
 """, unsafe_allow_html=True)
 
 # --- SISTEMA DI ACCESSO CON PIN / PASSWORD ---
@@ -86,21 +135,6 @@ def check_password():
 
 if check_password():
 
-    # --- FUNZIONE GENERAZIONE BARCODE (Parametri personalizzati) ---
-    def generate_barcode_base64(value):
-        if not value or str(value).strip() == "" or str(value).strip().lower() == "nan" or str(value).strip() == "none":
-            return None
-        try:
-            CODE128 = barcode.get_barcode_class('code128')
-            rv = io.BytesIO()
-            val_str = str(value).split('.')[0].strip()
-            code = CODE128(val_str, writer=ImageWriter())
-            # Module height a 6.0 e font size a 4
-            code.write(rv, options={"module_height": 7.0, "font_size": 4, "text_distance": 1.5, "quiet_zone": 1.0})
-            return base64.b64encode(rv.getvalue()).decode("utf-8")
-        except Exception as e:
-            return None
-
     # --- INTESTAZIONE E SELETTORE MODALITÀ ---
     st.title("🚚 Generatore Barcode Logistics")
     
@@ -110,7 +144,7 @@ if check_password():
             st.session_state.authenticated = False
             st.rerun()
         st.markdown("---")
-        st.info("💡 **Nota Stampa:**\nLe linee si dispongono su 2 colonne in stampa per ottimizzare gli spazi su foglio A4.")
+        st.info("💡 **Nota Stampa:**\nInclude il barcode STAT77 in cima e le linee disposte su 2 colonne.")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
