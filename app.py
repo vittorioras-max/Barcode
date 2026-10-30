@@ -48,7 +48,7 @@ st.markdown("""
         }
         .info-line {
             color: #000 !important;
-            font-size: 10px !important;
+            font-size: 18px !important;
         }
         img {
             max-height: 32px !important;
@@ -212,7 +212,7 @@ if check_password():
 
                     st.markdown(f"""
                     <div class="print-card">
-                        <div style="font-weight: bold; font-size: 13px; margin-bottom: 2px;">🚚 {citta_val}</div>
+                        <div style="font-weight: bold; font-size: 18px; margin-bottom: 2px;">🚚 {citta_val}</div>
                         <div class="info-line">{info_str}<b>Linea:</b> <code>{linea_val}</code></div>
                         {img_tag}
                     </div>
