@@ -8,12 +8,25 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# --- CSS OTTIMIZZATO PER STAMPA DINAMICA (1 O 2 PAGINE A4) ---
+# --- CSS DEFINITIVO PER STAMPA PULITA (SOLO DATI IN 1-2 PAGINE) ---
 st.markdown("""
     <style>
     @media print {
-        header, footer, .stSidebar, .stRadio, button, .stButton {
+        /* Nasconde tutto ciò che non fa parte dell'elenco delle linee */
+        header, footer, .stSidebar, .stRadio, button, .stButton, .stTextInput, .stAlert, h1, h2 {
             display: none !important;
+        }
+        body * {
+            visibility: hidden;
+        }
+        .print-container, .print-container * {
+            visibility: visible;
+        }
+        .print-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
         }
         body, .stApp {
             background: white !important;
@@ -24,7 +37,7 @@ st.markdown("""
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
-            margin-bottom: 4px !important;
+            margin-bottom: 3px !important;
             padding: 2px !important;
         }
         h3 {
@@ -41,7 +54,7 @@ st.markdown("""
             border-color: #ddd !important;
         }
         img {
-            max-height: 38px !important;
+            max-height: 32px !important;
             width: auto !important;
         }
     }
@@ -84,7 +97,7 @@ if check_password():
             rv = io.BytesIO()
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
-            code.write(rv, options={"module_height": 4.5, "font_size": 9, "text_distance": 2.5, "quiet_zone": 1.5})
+            code.write(rv, options={"module_height": 4.0, "font_size": 8, "text_distance": 2.0, "quiet_zone": 1.0})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
             return None
@@ -98,7 +111,7 @@ if check_password():
             st.session_state.authenticated = False
             st.rerun()
         st.markdown("---")
-        st.info("💡 **Nota Stampa:**\nIl layout si adatta automaticamente per stampare in modo compatto (1 pagina se poche linee, oppure si estende pulito su 2 pagine per 30+ linee).")
+        st.info("💡 **Nota Stampa:**\nI menu e le intestazioni vengono nascosti automaticamente in stampa per fare entrare tutte le linee in 1 o 2 pagine A4.")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
@@ -172,6 +185,9 @@ if check_password():
             else:
                 st.success(f"Caricate {len(df_valid)} linee in ordine dal foglio!")
                 
+                # Contenitore isolato esclusivamente per la stampa
+                st.markdown('<div class="print-container">', unsafe_allow_html=True)
+                
                 for idx, row in df_valid.reset_index(drop=True).iterrows():
                     citta_val = str(row.get('città', '')).replace('nan', '').strip()
                     linea_val = str(row.get('linea', '')).replace('nan', '').strip()
@@ -181,7 +197,6 @@ if check_password():
                     if not linea_val or linea_val == '':
                         continue
 
-                    # Blocco protetto per la stampa (evita tagli a metà pagina)
                     st.markdown('<div class="print-card">', unsafe_allow_html=True)
                     
                     st.markdown(f"### 🚚 {citta_val}")
@@ -202,6 +217,8 @@ if check_password():
                     
                     st.markdown("---")
                     st.markdown('</div>', unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
