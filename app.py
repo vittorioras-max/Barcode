@@ -8,9 +8,15 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# --- CSS PER STAMPA OTTIMIZZATA (1-2 PAGINE A4) ---
+# --- CSS DEFINITIVO PER VISIBILITÀ E STAMPA COMPATTA (1-2 PAGINE A4) ---
 st.markdown("""
     <style>
+    /* Colore chiaro per i testi informativi a schermo scuro */
+    .info-line {
+        font-size: 13px !important;
+        color: #d1d5db !important;
+        margin-bottom: 2px !important;
+    }
     @media print {
         [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, 
         .stButton, .stRadio, .stTextInput, .stAlert, button {
@@ -32,8 +38,12 @@ st.markdown("""
             padding: 2px !important;
             border-bottom: 1px solid #ddd !important;
         }
+        .info-line {
+            color: #000 !important;
+            font-size: 10px !important;
+        }
         img {
-            max-height: 24px !important;
+            max-height: 32px !important;
             width: auto !important;
             margin-top: 1px !important;
         }
@@ -68,7 +78,7 @@ def check_password():
 
 if check_password():
 
-    # --- FUNZIONE GENERAZIONE BARCODE (Altezza barre dimezzata) ---
+    # --- FUNZIONE GENERAZIONE BARCODE (Barre più alte, numero più piccolo) ---
     def generate_barcode_base64(value):
         if not value or str(value).strip() == "" or str(value).strip().lower() == "nan" or str(value).strip() == "none":
             return None
@@ -77,8 +87,8 @@ if check_password():
             rv = io.BytesIO()
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
-            # module_height ridotto a 2.2 (circa la metà) e font_size proporzionato
-            code.write(rv, options={"module_height": 2.2, "font_size": 6, "text_distance": 1.5, "quiet_zone": 1.0})
+            # module_height aumentato a 4.0 (banda più alta), font_size ridotto a 6 (numero più piccolo)
+            code.write(rv, options={"module_height": 4.0, "font_size": 6, "text_distance": 1.5, "quiet_zone": 1.0})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
             return None
@@ -113,7 +123,7 @@ if check_password():
         st.caption("Inserisci manualmente i dati per fino a 12 linee.")
 
         if "manual_data" not in st.session_state:
-            st.session_state.manual_data = [{"destinazione": "", "targa": "", "linea": "", "partenza": ""} for _ in range(12)]
+            st.session_state.manual_data = [{"destinazione": "", "targa": "", "partenza": "", "linea": ""} for _ in range(12)]
 
         for idx in range(12):
             st.markdown(f"##### Linea {idx + 1}")
@@ -176,7 +186,7 @@ if check_password():
                     if not linea_val or linea_val == '':
                         continue
 
-                    # Prepariamo la stringa con targa e orario di partenza garantiti
+                    # Prepariamo la stringa con targa e orario di partenza
                     info_parts = []
                     if targa_val:
                         info_parts.append(f"Targa: {targa_val}")
@@ -191,12 +201,12 @@ if check_password():
 
                     st.markdown(f"""
                     <div class="print-card">
-                        <div style="font-weight: bold; font-size: 12px; margin-bottom: 1px;">🚚 {citta_val}</div>
-                        <div style="font-size: 10px; color: #222;">{info_str}<b>Linea:</b> <code>{linea_val}</code></div>
+                        <div style="font-weight: bold; font-size: 13px; margin-bottom: 2px;">🚚 {citta_val}</div>
+                        <div class="info-line">{info_str}<b>Linea:</b> <code>{linea_val}</code></div>
                         {img_tag}
                     </div>
                     """, unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
-        
+            
