@@ -49,7 +49,7 @@ if check_password():
             rv = io.BytesIO()
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
-            code.write(rv, options={"module_height": 5.0, "font_size": 10, "text_distance": 3.0, "quiet_zone": 2.0})
+            code.write(rv, options={"module_height": 5.0, "font_size": 5, "text_distance": 3.0, "quiet_zone": 2.0})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
             return None
