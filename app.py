@@ -8,45 +8,38 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# --- CSS CORRETTO PER STAMPA PDF (SENZA PAGINE BIANCHE) ---
+# --- CSS DEFINITIVO PER COMPATTARE TUTTO IN 1-2 PAGINE A4 ---
 st.markdown("""
     <style>
     @media print {
-        /* Nasconde in modo sicuro sidebar, header, footer, bottoni e input in stampa */
+        /* Nasconde sidebar, intestazioni, bottoni e menu */
         [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, 
         .stButton, .stRadio, .stTextInput, .stAlert, button {
             display: none !important;
         }
-        /* Configura la pagina stampabile in bianco e nero con margini ridotti */
+        /* Azzera i margini della pagina per sfruttare tutto il foglio A4 */
         body, .stApp {
             background: white !important;
             color: black !important;
             margin: 0 !important;
-            padding: 5px !important;
+            padding: 2mm !important;
         }
-        /* Evita che una singola linea venga spezzata tra una pagina e l'altra */
+        /* Annulla i gap verticali automatici di Streamlit */
+        div[data-testid="stVerticalBlock"] {
+            gap: 0px !important;
+        }
+        /* Stile ultracompatto per ogni singola linea */
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
-            margin-bottom: 4px !important;
+            margin-bottom: 3px !important;
             padding: 2px !important;
-        }
-        h3 {
-            font-size: 12px !important;
-            margin: 2px 0 1px 0 !important;
-        }
-        p, div, span {
-            font-size: 10px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        hr {
-            margin: 2px 0 !important;
-            border-color: #ccc !important;
+            border-bottom: 1px solid #ddd !important;
         }
         img {
-            max-height: 35px !important;
+            max-height: 26px !important;
             width: auto !important;
+            margin-top: 1px !important;
         }
     }
     </style>
@@ -88,7 +81,7 @@ if check_password():
             rv = io.BytesIO()
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
-            code.write(rv, options={"module_height": 4.0, "font_size": 8, "text_distance": 2.0, "quiet_zone": 1.0})
+            code.write(rv, options={"module_height": 3.5, "font_size": 7, "text_distance": 1.5, "quiet_zone": 1.0})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
             return None
@@ -102,7 +95,7 @@ if check_password():
             st.session_state.authenticated = False
             st.rerun()
         st.markdown("---")
-        st.info("💡 **Nota Stampa:**\nI menu e i comandi vengono nascosti automaticamente in stampa per fare entrare tutto in 1 o 2 pagine.")
+        st.info("💡 **Nota Stampa:**\nLe linee sono ottimizzate per entrare in 1 o 2 pagine A4 massime.")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
@@ -176,6 +169,7 @@ if check_password():
             else:
                 st.success(f"Caricate {len(df_valid)} linee in ordine dal foglio!")
                 
+                # Renderizziamo ogni riga con un blocco HTML pulito e ultra-compatto per la stampa
                 for idx, row in df_valid.reset_index(drop=True).iterrows():
                     citta_val = str(row.get('città', '')).replace('nan', '').strip()
                     linea_val = str(row.get('linea', '')).replace('nan', '').strip()
@@ -185,27 +179,27 @@ if check_password():
                     if not linea_val or linea_val == '':
                         continue
 
-                    # Blocco protetto per la stampa
-                    st.markdown('<div class="print-card">', unsafe_allow_html=True)
-                    
-                    st.markdown(f"### 🚚 {citta_val}")
-                    
-                    info_text = []
+                    # Prepariamo le informazioni testuali affiancate
+                    info_parts = []
                     if targa_val:
-                        info_text.append(f"**Targa:** {targa_val}")
+                        info_parts.append(f"Targa: {targa_val}")
                     if partenza_val:
-                        info_text.append(f"**Partenza:** {partenza_val}")
-                    if info_text:
-                        st.write(" | ".join(info_text))
-                        
-                    st.write(f"**Linea:** `{linea_val}`")
+                        info_parts.append(f"Partenza: {partenza_val}")
+                    info_str = " | ".join(info_parts)
+                    if info_str:
+                        info_str += " &nbsp;|&nbsp; "
 
                     b64_img = generate_barcode_base64(linea_val)
-                    if b64_img:
-                        st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
-                    
-                    st.markdown("---")
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    img_tag = f'<img src="data:image/png;base64,{b64_img}">' if b64_img else ''
+
+                    # Blocco HTML unificato: elimina gli spazi vuoti e si compatta perfettamente
+                    st.markdown(f"""
+                    <div class="print-card">
+                        <div style="font-weight: bold; font-size: 11px; margin-bottom: 1px;">🚚 {citta_val}</div>
+                        <div style="font-size: 9px; color: #222;">{info_str}<b>Linea:</b> <code>{linea_val}</code></div>
+                        {img_tag}
+                    </div>
+                    """, unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
