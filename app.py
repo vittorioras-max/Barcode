@@ -201,7 +201,7 @@ if check_password():
 
                     st.markdown(f"""
                     <div class="print-card">
-                        <div style="font-weight: bold; font-size: 13px; margin-bottom: 2px;">🚚 {citta_val}</div>
+                        <div style="font-weight: bold; font-size: 9px; margin-bottom: 2px;">🚚 {citta_val}</div>
                         <div class="info-line">{info_str}<b>Linea:</b> <code>{linea_val}</code></div>
                         {img_tag}
                     </div>
