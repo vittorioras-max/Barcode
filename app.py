@@ -8,31 +8,39 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# Controllo Password sicuro dai Secrets di Streamlit
+# --- SISTEMA DI ACCESSO CON PIN / PASSWORD ---
 def check_password():
-    # Se non è impostata alcuna password nei secrets, salta il login per evitare blocchi
-    if "password" not in st.secrets:
-        return True
-    
+    # Inizializza lo stato di autenticazione
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
 
     if not st.session_state.authenticated:
-        st.title("🔒 Accesso Riservato")
-        pwd = st.text_input("Inserisci la password:", type="password")
-        if st.button("Accedi"):
-            # Confronto pulito rimuovendo spazi accidentali
-            if pwd.strip() == str(st.secrets["password"]).strip():
-                st.session_state.authenticated = True
-                st.rerun()
-            else:
-                st.error("Password errata!")
+        # Layout pulito per la schermata di blocco
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>🔒 Accesso Riservato</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: gray;'>Inserisci la password per sbloccare l'applicazione</p>", unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            # Casella per il PIN / Password
+            pwd = st.text_input("Password", type="password", key="login_pin_input", label_visibility="collapsed", placeholder="Inserisci PIN...")
+            
+            if st.button("Sblocca App", use_container_width=True):
+                # Recupera la password dai secrets (se esiste) o usa "Wilson" come fallback sicuro
+                correct_pwd = st.secrets["password"] if "password" in st.secrets else "Wilson"
+                
+                if pwd.strip() == str(correct_pwd).strip():
+                    st.session_state.authenticated = True
+                    st.rerun()
+                else:
+                    st.error("❌ Password errata!")
         return False
     return True
 
+# Esegue il blocco: se non sei autenticato, mostra solo la schermata di login e interrompe lo script
 if check_password():
 
-    # Funzione per generare il Code 128 in base64 (altezza dimezzata a 5.0)
+    # --- FUNZIONE GENERAZIONE BARCODE (Altezza 5.0) ---
     def generate_barcode_base64(value):
         if not value or str(value).strip() == "" or str(value).strip().lower() == "nan" or str(value).strip() == "none":
             return None
@@ -46,9 +54,16 @@ if check_password():
         except Exception as e:
             return None
 
-    # SELETTORE MODALITÀ IN ALTO
+    # --- INTESTAZIONE E SELETTORE MODALITÀ ---
     st.title("🚚 Generatore Barcode Logistics")
     
+    # Pulsante di uscita / blocco rapido nella barra laterale per testare il PIN quando vuoi
+    with st.sidebar:
+        st.subheader("⚙️ Opzioni")
+        if st.button("🔒 Blocca / Esci"):
+            st.session_state.authenticated = False
+            st.rerun()
+
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
         [
@@ -149,3 +164,4 @@ if check_password():
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
+            
