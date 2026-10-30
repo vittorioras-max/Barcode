@@ -96,7 +96,7 @@ if check_password():
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
             # Module height a 6.0 e font size a 4
-            code.write(rv, options={"module_height": 6.0, "font_size": 4, "text_distance": 1.5, "quiet_zone": 1.0})
+            code.write(rv, options={"module_height": 6.0, "font_size": 6, "text_distance": 1.5, "quiet_zone": 1.0})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
             return None
