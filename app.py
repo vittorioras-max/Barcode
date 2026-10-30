@@ -28,12 +28,12 @@ st.markdown("""
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
-            margin-bottom: 4px !important;
+            margin-bottom: 3px !important;
             padding: 2px !important;
             border-bottom: 1px solid #ddd !important;
         }
         img {
-            max-height: 32px !important;
+            max-height: 24px !important;
             width: auto !important;
             margin-top: 1px !important;
         }
@@ -68,7 +68,7 @@ def check_password():
 
 if check_password():
 
-    # --- FUNZIONE GENERAZIONE BARCODE (Numero ingrandito del 75%) ---
+    # --- FUNZIONE GENERAZIONE BARCODE (Altezza barre dimezzata) ---
     def generate_barcode_base64(value):
         if not value or str(value).strip() == "" or str(value).strip().lower() == "nan" or str(value).strip() == "none":
             return None
@@ -77,8 +77,8 @@ if check_password():
             rv = io.BytesIO()
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
-            # font_size aumentato a 9 per ingrandire il numero nel barcode
-            code.write(rv, options={"module_height": 4.5, "font_size": 9, "text_distance": 2.0, "quiet_zone": 1.0})
+            # module_height ridotto a 2.2 (circa la metà) e font_size proporzionato
+            code.write(rv, options={"module_height": 2.2, "font_size": 6, "text_distance": 1.5, "quiet_zone": 1.0})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
             return None
@@ -113,17 +113,18 @@ if check_password():
         st.caption("Inserisci manualmente i dati per fino a 12 linee.")
 
         if "manual_data" not in st.session_state:
-            st.session_state.manual_data = [{"destinazione": "", "targa": "", "linea": ""} for _ in range(12)]
+            st.session_state.manual_data = [{"destinazione": "", "targa": "", "linea": "", "partenza": ""} for _ in range(12)]
 
         for idx in range(12):
             st.markdown(f"##### Linea {idx + 1}")
-            c1, c2, c3 = st.columns(3)
+            c1, c2, c3, c4 = st.columns(4)
             
             dest = c1.text_input(f"Destinazione #{idx+1}", value=st.session_state.manual_data[idx]["destinazione"], placeholder="città", key=f"dest_{idx}")
             targa = c2.text_input(f"Targa #{idx+1}", value=st.session_state.manual_data[idx]["targa"], placeholder="Targa", key=f"targa_{idx}")
-            linea = c3.text_input(f"Num. Linea #{idx+1}", value=st.session_state.manual_data[idx]["linea"], placeholder="Linea", key=f"linea_{idx}")
+            partenza = c3.text_input(f"Partenza #{idx+1}", value=st.session_state.manual_data[idx]["partenza"], placeholder="Orario", key=f"partenza_{idx}")
+            linea = c4.text_input(f"Num. Linea #{idx+1}", value=st.session_state.manual_data[idx]["linea"], placeholder="Linea", key=f"linea_{idx}")
             
-            st.session_state.manual_data[idx] = {"destinazione": dest, "targa": targa, "linea": linea}
+            st.session_state.manual_data[idx] = {"destinazione": dest, "targa": targa, "partenza": partenza, "linea": linea}
 
             if linea:
                 b64_img = generate_barcode_base64(linea)
@@ -175,7 +176,7 @@ if check_password():
                     if not linea_val or linea_val == '':
                         continue
 
-                    # Prepariamo le informazioni testuali con targa e orario di partenza
+                    # Prepariamo la stringa con targa e orario di partenza garantiti
                     info_parts = []
                     if targa_val:
                         info_parts.append(f"Targa: {targa_val}")
@@ -198,4 +199,4 @@ if check_password():
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
-                    
+        
