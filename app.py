@@ -8,7 +8,7 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# --- CSS CON STAMPA A 2 COLONNE, STAT77 SOTTO IL TITOLO E BARCODE STAMPABILE +20% ---
+# --- CSS CON STAMPA A 2 COLONNE, STAT77 SOTTO IL TITOLO E CARD ORDINATE ---
 st.markdown("""
     <style>
     /* Colore chiaro per i testi informativi a schermo scuro */
@@ -57,12 +57,16 @@ st.markdown("""
             column-gap: 8px !important;
             width: 100% !important;
         }
+        
+        /* Ogni voce ha ora il suo riquadro pulito e ordinato */
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
-            margin-bottom: 4px !important;
-            padding: 2px !important;
-            border-bottom: 1px solid #ddd !important;
+            margin-bottom: 6px !important;
+            padding: 6px !important;
+            border: 1px solid #bbb !important;
+            border-radius: 4px !important;
+            background: white !important;
             display: inline-block !important;
             width: 100% !important;
         }
@@ -77,12 +81,12 @@ st.markdown("""
             padding: 0 !important;
             font-weight: bold !important;
         }
-        /* Barcode in stampa ingrandito del 20% (da 38px a 46px) */
+        /* Barcode in stampa ingrandito del 20% */
         img {
             max-height: 46px !important;
             max-width: 100% !important;
             width: auto !important;
-            margin-top: 1px !important;
+            margin-top: 2px !important;
         }
     }
     </style>
@@ -149,7 +153,7 @@ if check_password():
             st.session_state.authenticated = False
             st.rerun()
         st.markdown("---")
-        st.info("💡 **Nota Stampa:**\nBarcode STAT77 sotto il titolo, stampa a 2 colonne e barcode stampabili ingranditi del 20%.")
+        st.info("💡 **Nota Stampa:**\nBarcode STAT77 sotto il titolo, stampa a 2 colonne e voci racchiuse in riquadri ordinati.")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
