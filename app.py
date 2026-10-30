@@ -12,7 +12,6 @@ st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", 
 st.markdown("""
     <style>
     @media print {
-        /* Nasconde elementi superflui in stampa */
         header, footer, .stSidebar, .stRadio, button, .stButton {
             display: none !important;
         }
@@ -22,7 +21,6 @@ st.markdown("""
             margin: 0 !important;
             padding: 0 !important;
         }
-        /* Evita che un blocco di linea venga spezzato a metà tra un foglio e l'altro */
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
@@ -43,7 +41,7 @@ st.markdown("""
             border-color: #ddd !important;
         }
         img {
-            max-height: 35px !important;
+            max-height: 38px !important;
             width: auto !important;
         }
     }
@@ -57,7 +55,7 @@ def check_password():
 
     if not st.session_state.authenticated:
         st.markdown("<br><br>", unsafe_allow_html=True)
-        st.markdown("<h2 style='text-align: center;'>🔒 Accesso a rosyapp</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>🔒 Accesso Riservato</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: gray;'>Inserisci la password di accesso:</p>", unsafe_allow_html=True)
         
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -86,8 +84,7 @@ if check_password():
             rv = io.BytesIO()
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
-            # Altezza ottimizzata per inserire 30+ linee su 1 o 2 pagine A4
-            code.write(rv, options={"module_height": 4.0, "font_size": 8, "text_distance": 2.0, "quiet_zone": 1.0})
+            code.write(rv, options={"module_height": 4.5, "font_size": 9, "text_distance": 2.5, "quiet_zone": 1.5})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
             return None
@@ -163,50 +160,5 @@ if check_password():
             # Pulizia nomi colonne
             df.columns = [str(col).strip().lower() for col in df.columns]
 
-            # Converte in stringa e rimuove il .0 se presente
-            if 'linea' in df.columns:
-                df['linea'] = df['linea'].astype(str).str.replace('.0', '', regex=False)
-                df_valid = df[df['linea'].str.lower() != 'nan'].copy()
-            else:
-                df_valid = df.copy()
-
-            if df_valid.empty:
-                st.warning("Il foglio Google non contiene righe con numeri di linea compilati.")
-            else:
-                st.success(f"Caricate {len(df_valid)} linee in ordine dal foglio!")
-                
-                # Ciclo su tutte le linee presenti nel foglio (da 1 a 30 e oltre)
-                for idx, row in df_valid.reset_index(drop=True).iterrows():
-                    citta_val = str(row.get('città', '')).replace('nan', '').strip()
-                    linea_val = str(row.get('linea', '')).replace('nan', '').strip()
-                    targa_val = str(row.get('targa', '')).replace('nan', '').strip()
-                    partenza_val = str(row.get('partenza', '')).replace('nan', '').strip()
-
-                    if not linea_val or linea_val == '':
-                        continue
-
-                    # Blocco protetto per la stampa (evita tagli a metà pagina)
-                    st.markdown('<div class="print-card">', unsafe_allow_html=True)
-                    
-                    st.markdown(f"### 🚚 {citta_val}")
-                    
-                    info_text = []
-                    if targa_val:
-                        info_text.append(f"**Targa:** {targa_val}")
-                    if partenza_val:
-                        info_text.append(f"**Partenza:** {partenza_val}")
-                    if info_text:
-                        st.write(" | ".join(info_text))
-                        
-                    st.write(f"**Linea:** `{linea_val}`")
-
-                    b64_img = generate_barcode_base64(linea_val)
-                    if b64_img:
-                        st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
-                    
-                    st.markdown("---")
-                    st.markdown('</div>', unsafe_allow_html=True)
-
-        except Exception as e:
-            st.error(f"Errore durante il caricamento del foglio Google: {e}")
+            # Con
             
