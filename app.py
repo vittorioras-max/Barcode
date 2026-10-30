@@ -8,7 +8,7 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# --- CSS CON STAMPA A 2 COLONNE COMPATTA ---
+# --- CSS CON STAMPA A 2 COLONNE FORZATA (COLUMN-COUNT) ---
 st.markdown("""
     <style>
     /* Colore chiaro per i testi informativi a schermo scuro */
@@ -31,18 +31,20 @@ st.markdown("""
         div[data-testid="stVerticalBlock"] {
             gap: 0px !important;
         }
-        /* Griglia a 2 colonne per far entrare 30+ linee in 1 pagina A4 */
+        /* Utilizzo di column-count per garantire le 2 colonne reali in stampa PDF mobile */
         .print-grid {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 6px !important;
+            column-count: 2 !important;
+            column-gap: 8px !important;
+            width: 100% !important;
         }
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
-            margin-bottom: 3px !important;
+            margin-bottom: 4px !important;
             padding: 2px !important;
             border-bottom: 1px solid #ddd !important;
+            display: inline-block !important;
+            width: 100% !important;
         }
         .info-line {
             color: #000 !important;
@@ -93,7 +95,7 @@ if check_password():
             rv = io.BytesIO()
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
-            # Module height a 6.0 e font size a 4 come da tue modifiche
+            # Module height a 6.0 e font size a 4
             code.write(rv, options={"module_height": 6.0, "font_size": 4, "text_distance": 1.5, "quiet_zone": 1.0})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
@@ -108,7 +110,7 @@ if check_password():
             st.session_state.authenticated = False
             st.rerun()
         st.markdown("---")
-        st.info("💡 **Nota Stampa:**\nLe linee si affiancano su 2 colonne in stampa per ottimizzare gli spazi su foglio A4.")
+        st.info("💡 **Nota Stampa:**\nLe linee si dispongono su 2 colonne in stampa per ottimizzare gli spazi su foglio A4.")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
@@ -183,7 +185,7 @@ if check_password():
             else:
                 st.success(f"Caricate {len(df_valid)} linee in ordine dal foglio!")
                 
-                # Wrapper per la griglia a 2 colonne attiva in stampa
+                # Wrapper per la stampa a 2 colonne basato su column-count
                 st.markdown('<div class="print-grid">', unsafe_allow_html=True)
                 
                 for idx, row in df_valid.reset_index(drop=True).iterrows():
@@ -220,4 +222,4 @@ if check_password():
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
-                        
+            
