@@ -48,7 +48,7 @@ st.markdown("""
         }
         .info-line {
             color: #000 !important;
-            font-size: 18px !important;
+            font-size: 13px !important;
         }
         img {
             max-height: 32px !important;
