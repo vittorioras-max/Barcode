@@ -88,7 +88,7 @@ if check_password():
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
             # module_height aumentato a 4.0 (banda più alta), font_size ridotto a 6 (numero più piccolo)
-            code.write(rv, options={"module_height": 4.0, "font_size": 6, "text_distance": 1.5, "quiet_zone": 1.0})
+            code.write(rv, options={"module_height": 6.0, "font_size": 4, "text_distance": 1.5, "quiet_zone": 1.0})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
             return None
@@ -201,7 +201,7 @@ if check_password():
 
                     st.markdown(f"""
                     <div class="print-card">
-                        <div style="font-weight: bold; font-size: 9px; margin-bottom: 2px;">🚚 {citta_val}</div>
+                        <div style="font-weight: bold; font-size: 13px; margin-bottom: 2px;">🚚 {citta_val}</div>
                         <div class="info-line">{info_str}<b>Linea:</b> <code>{linea_val}</code></div>
                         {img_tag}
                     </div>
