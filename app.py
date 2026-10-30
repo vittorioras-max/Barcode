@@ -8,25 +8,63 @@ import base64
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
+# --- CSS OTTIMIZZATO PER STAMPA DINAMICA (1 O 2 PAGINE A4) ---
+st.markdown("""
+    <style>
+    @media print {
+        /* Nasconde elementi superflui in stampa */
+        header, footer, .stSidebar, .stRadio, button, .stButton {
+            display: none !important;
+        }
+        body, .stApp {
+            background: white !important;
+            color: black !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        /* Evita che un blocco di linea venga spezzato a metà tra un foglio e l'altro */
+        .print-card {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 4px !important;
+            padding: 2px !important;
+        }
+        h3 {
+            font-size: 11px !important;
+            margin: 2px 0 1px 0 !important;
+        }
+        p, div, span {
+            font-size: 9px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        hr {
+            margin: 2px 0 !important;
+            border-color: #ddd !important;
+        }
+        img {
+            max-height: 35px !important;
+            width: auto !important;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- SISTEMA DI ACCESSO CON PIN / PASSWORD ---
 def check_password():
-    # Inizializza lo stato di autenticazione
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
 
     if not st.session_state.authenticated:
-        # Layout pulito per la schermata di blocco
         st.markdown("<br><br>", unsafe_allow_html=True)
-        st.markdown("<h2 style='text-align: center;'>🔒 Generatore Barcode Logistics</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: gray;'>LOGIN</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>🔒 Accesso a rosyapp</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: gray;'>Inserisci la password di accesso:</p>", unsafe_allow_html=True)
         
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            # Casella per il PIN / Password
-            pwd = st.text_input("Password", type="password", key="login_pin_input", label_visibility="collapsed", placeholder="Inserisci PIN...")
+            pwd = st.text_input("Password", type="password", key="login_pin_input", label_visibility="collapsed", placeholder="Inserisci password...")
             
-            if st.button("Sblocca App", use_container_width=True):
-                # Recupera la password dai secrets (se esiste) o usa "Wilson" come fallback sicuro
+            if st.button("Accedi", use_container_width=True):
                 correct_pwd = st.secrets["password"] if "password" in st.secrets else "Wilson"
                 
                 if pwd.strip() == str(correct_pwd).strip():
@@ -37,10 +75,9 @@ def check_password():
         return False
     return True
 
-# Esegue il blocco: se non sei autenticato, mostra solo la schermata di login e interrompe lo script
 if check_password():
 
-    # --- FUNZIONE GENERAZIONE BARCODE (Altezza 5.0) ---
+    # --- FUNZIONE GENERAZIONE BARCODE COMPATTO ---
     def generate_barcode_base64(value):
         if not value or str(value).strip() == "" or str(value).strip().lower() == "nan" or str(value).strip() == "none":
             return None
@@ -49,7 +86,8 @@ if check_password():
             rv = io.BytesIO()
             val_str = str(value).split('.')[0].strip()
             code = CODE128(val_str, writer=ImageWriter())
-            code.write(rv, options={"module_height": 5.0, "font_size": 5, "text_distance": 3.0, "quiet_zone": 2.0})
+            # Altezza ottimizzata per inserire 30+ linee su 1 o 2 pagine A4
+            code.write(rv, options={"module_height": 4.0, "font_size": 8, "text_distance": 2.0, "quiet_zone": 1.0})
             return base64.b64encode(rv.getvalue()).decode("utf-8")
         except Exception as e:
             return None
@@ -57,12 +95,13 @@ if check_password():
     # --- INTESTAZIONE E SELETTORE MODALITÀ ---
     st.title("🚚 Generatore Barcode Logistics")
     
-    # Pulsante di uscita / blocco rapido nella barra laterale per testare il PIN quando vuoi
     with st.sidebar:
         st.subheader("⚙️ Opzioni")
         if st.button("🔒 Blocca / Esci"):
             st.session_state.authenticated = False
             st.rerun()
+        st.markdown("---")
+        st.info("💡 **Nota Stampa:**\nIl layout si adatta automaticamente per stampare in modo compatto (1 pagina se poche linee, oppure si estende pulito su 2 pagine per 30+ linee).")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
@@ -136,6 +175,7 @@ if check_password():
             else:
                 st.success(f"Caricate {len(df_valid)} linee in ordine dal foglio!")
                 
+                # Ciclo su tutte le linee presenti nel foglio (da 1 a 30 e oltre)
                 for idx, row in df_valid.reset_index(drop=True).iterrows():
                     citta_val = str(row.get('città', '')).replace('nan', '').strip()
                     linea_val = str(row.get('linea', '')).replace('nan', '').strip()
@@ -145,6 +185,9 @@ if check_password():
                     if not linea_val or linea_val == '':
                         continue
 
+                    # Blocco protetto per la stampa (evita tagli a metà pagina)
+                    st.markdown('<div class="print-card">', unsafe_allow_html=True)
+                    
                     st.markdown(f"### 🚚 {citta_val}")
                     
                     info_text = []
@@ -160,7 +203,9 @@ if check_password():
                     b64_img = generate_barcode_base64(linea_val)
                     if b64_img:
                         st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
+                    
                     st.markdown("---")
+                    st.markdown('</div>', unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
