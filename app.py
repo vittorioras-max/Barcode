@@ -17,8 +17,8 @@ def check_password():
     if not st.session_state.authenticated:
         # Layout pulito per la schermata di blocco
         st.markdown("<br><br>", unsafe_allow_html=True)
-        st.markdown("<h2 style='text-align: center;'>🔒 Accesso Riservato</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: gray;'>Inserisci la password per sbloccare l'applicazione</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>🔒 Generatore Barcode Logistics</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: gray;'>LOGIN</p>", unsafe_allow_html=True)
         
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
