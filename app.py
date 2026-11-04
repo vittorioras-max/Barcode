@@ -5,7 +5,7 @@ from barcode.writer import ImageWriter
 import io
 import base64
 
-# Importiamo correttamente le funzioni da print_utils
+# Importiamo correttamente le funzioni da print_utils.py
 from print_utils import get_print_styles, render_stat77_header, render_logistics_card
 
 # Configurazione Pagina
@@ -69,7 +69,7 @@ if check_password():
             st.session_state.authenticated = False
             st.rerun()
         st.markdown("---")
-        st.info("💡 **Nota Stampa:**\nSTAT77 ripetersi automaticamente su ogni pagina stampata.")
+        st.info("💡 **Nota Stampa:**\nSTAT77 si ripete automaticamente su ogni pagina stampata.")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
