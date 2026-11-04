@@ -1,15 +1,8 @@
 # --- print_utils.py ---
 
 def get_print_styles():
-    """Restituisce CSS elegante e ad alta visibilità per titolo, card e stampa."""
     return """
     <style>
-    .info-line {
-        font-size: 15px !important;
-        margin-bottom: 4px !important;
-    }
-    
-    /* Intestazione principale con camioncino ed effetto elegante */
     .top-main-header {
         text-align: center;
         margin-bottom: 20px;
@@ -17,20 +10,19 @@ def get_print_styles():
         border-bottom: 2px solid #444;
     }
     .top-main-title {
-        font-size: 24px;
+        font-size: 22px;
         font-weight: bold;
-        margin-bottom: 8px;
-        color: #ffffff;
+        margin-bottom: 6px;
     }
-    .stat77-subblock {
-        margin-top: 8px;
+    .stat77-header-block {
+        text-align: center;
+        margin-top: 6px;
     }
-    .stat77-subblock img {
-        max-height: 45px;
+    .stat77-header-block img {
+        max-height: 42px;
         width: auto;
     }
 
-    /* Card singole */
     .print-card {
         margin-bottom: 12px;
         padding: 10px;
@@ -44,38 +36,82 @@ def get_print_styles():
         margin-bottom: 4px;
     }
 
+    .info-line {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
     .line-code-highlight {
-        font-size: 20px !important;
-        font-weight: bold !important;
-        color: #4f46e5 !important;
+        font-weight: bold;
+        color: #4f46e5;
     }
 
     .line-barcode {
-        max-height: 52px;
+        max-height: 50px;
         width: auto;
-        margin-top: 6px;
+        margin-top: 4px;
     }
 
     @media print {
+        @page {
+            margin-top: 25mm;
+            margin-bottom: 15mm;
+            margin-left: 10mm;
+            margin-right: 10mm;
+        }
+
         [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, .stButton, .stRadio, .stTextInput, .stAlert {
             display: none !important;
         }
         body {
             background: white !important;
             color: black !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
-        /* Colore nero pieno e nitido per la stampa */
-        .top-main-title {
-            color: #000000 !important;
-            font-size: 22px !important;
-        }
+
         .top-main-header {
-            border-bottom: 1.5px solid #000 !important;
-            margin-bottom: 15px !important;
+            border-bottom: none !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
         }
-        .print-card {
+        .top-main-title {
+            font-size: 18px !important;
+            color: black !important;
+            margin-bottom: 4px !important;
+        }
+
+        /* STAT77 fisso e ripetuto in cima a OGNI pagina stampata */
+        .stat77-header-block {
+            display: block !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
             background: white !important;
-            border: 1px solid #999 !important;
+            padding-bottom: 6px !important;
+            border-bottom: 1.5px solid #000 !important;
+            z-index: 9999 !important;
+        }
+        .stat77-header-block img {
+            max-height: 38px !important;
+            width: auto !important;
+        }
+
+        .print-card {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            background: white !important;
+            border: 1.5px solid #999 !important;
+            margin-bottom: 8px !important;
+            padding: 8px !important;
+        }
+        .print-card-title {
+            color: black !important;
+            font-size: 16px !important;
+        }
+        .info-line {
+            color: black !important;
         }
         .line-code-highlight {
             color: black !important;
@@ -85,21 +121,19 @@ def get_print_styles():
     """
 
 def render_stat77_header(stat77_img_tag):
-    """Genera l'intestazione elegante con il camioncino, il nome dell'app e STAT77."""
     if not stat77_img_tag:
         return ""
     return f"""
     <div class="top-main-header">
         <div class="top-main-title">🚚 Generatore Barcode Logistics</div>
-        <div class="stat77-subblock">
-            <div style="font-weight: bold; font-size: 13px; margin-bottom: 2px; letter-spacing: 1px;">STAT77</div>
+        <div class="stat77-header-block">
+            <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px; letter-spacing: 1px;">STAT77</div>
             {stat77_img_tag}
         </div>
     </div>
     """
 
 def render_logistics_card(citta_val, info_str, linea_val, linea_img_tag):
-    """Genera la card pulita con risalto sul numero linea."""
     return f"""
     <div class="print-card">
         <div class="print-card-title">Destinazione: {citta_val}</div>
