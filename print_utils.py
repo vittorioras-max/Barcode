@@ -7,7 +7,7 @@ def get_print_styles():
     <style>
     .top-main-header { text-align:center; padding-bottom:10px; border-bottom:2px solid #444; width:100%; margin-bottom:10px; }
     .top-main-title { font-size:34px; font-weight:bold; margin-bottom:6px; }
-    .stat77-label { font-weight:bold; font-size:22px; letter-spacing:2px; margin-bottom:4px; }
+    .stat77-label { font-weight:bold; font-size:16px; letter-spacing:2px; margin-bottom:4px; }
     .stat77-header-block { text-align:center; margin-top:4px; }
     .stat77-header-block img { max-height:38px; width:auto; }
 
