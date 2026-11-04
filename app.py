@@ -137,4 +137,30 @@ if check_password():
             else:
                 st.success(f"Caricate {len(df_valid)} linee dal foglio!")
                 
+                for idx, row in df_valid.reset_index(drop=True).iterrows():
+                    citta_val = str(row.get('città', '')).replace('nan', '').strip()
+                    linea_val = str(row.get('linea', '')).replace('nan', '').strip()
+                    targa_val = str(row.get('targa', '')).replace('nan', '').strip()
+                    partenza_val = str(row.get('partenza', '')).replace('nan', '').strip()
 
+                    if not linea_val or linea_val == '':
+                        continue
+
+                    info_parts = []
+                    if targa_val and targa_val.lower() != 'nan':
+                        info_parts.append(f"Targa: {targa_val}")
+                    if partenza_val and partenza_val.lower() != 'nan':
+                        info_parts.append(f"Partenza: {partenza_val}")
+                    
+                    info_str = " | ".join(info_parts)
+                    if info_str:
+                        info_str += " &nbsp;|&nbsp; "
+
+                    b64_img = generate_barcode_base64(linea_val)
+                    linea_img_tag = f'<img src="data:image/png;base64,{b64_img}" class="line-barcode">' if b64_img else ''
+
+                    st.markdown(render_logistics_card(citta_val, info_str, linea_val, linea_img_tag), unsafe_allow_html=True)
+
+        except Exception as e:
+            st.error(f"Errore durante il caricamento del foglio Google: {e}")
+            
