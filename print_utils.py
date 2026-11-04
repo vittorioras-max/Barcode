@@ -6,7 +6,7 @@ def get_print_styles():
     return """
     <style>
     .top-main-header { text-align:center; padding-bottom:10px; border-bottom:2px solid #444; width:100%; margin-bottom:10px; }
-    .top-main-title { font-size:40px; font-weight:bold; margin-bottom:4px; }
+    .top-main-title { font-size:10px; font-weight:bold; margin-bottom:4px; }
     .stat77-header-block { text-align:center; margin-top:4px; }
     .stat77-header-block img { max-height:38px; width:auto; }
 
