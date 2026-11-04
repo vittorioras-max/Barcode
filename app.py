@@ -5,8 +5,8 @@ from barcode.writer import ImageWriter
 import io
 import base64
 
-# Importiamo le funzioni di grafica e stampa dal modulo esterno
-from print_utils import get_print_styles, render_stat77_header, render_logistics_card
+# Importiamo le sole funzioni valide presenti in print_utils.py
+from print_utils import get_print_styles, render_logistics_card
 
 # Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
@@ -55,13 +55,12 @@ if check_password():
         except Exception as e:
             return None
 
-    # --- INTESTAZIONE E SELETTORE MODALITÀ ---
-    st.title("🚚 Generatore Barcode Logistics")
-    
-    # Generazione STAT77 sotto il titolo (visibile solo in stampa tramite modulo esterno)
+    # Generiamo il barcode STAT77 da passare a ogni card
     stat77_b64 = generate_barcode_base64("STAT77")
     stat77_img_tag = f'<img src="data:image/png;base64,{stat77_b64}">' if stat77_b64 else ''
-    st.markdown(render_stat77_header(stat77_img_tag), unsafe_allow_html=True)
+
+    # --- INTESTAZIONE E SELETTORE MODALITÀ ---
+    st.title("🚚 Generatore Barcode Logistics")
     
     with st.sidebar:
         st.subheader("⚙️ Opzioni")
@@ -69,7 +68,7 @@ if check_password():
             st.session_state.authenticated = False
             st.rerun()
         st.markdown("---")
-        st.info("💡 **Nota Stampa:**\nLayout a singola colonna con box ordinati e font ottimizzati.")
+        st.info("💡 **Nota Stampa:**\nLayout ordinato con STAT77 incorporato in ogni card.")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
@@ -165,10 +164,10 @@ if check_password():
                         info_str += " &nbsp;|&nbsp; "
 
                     b64_img = generate_barcode_base64(linea_val)
-                    img_tag = f'<img src="data:image/png;base64,{b64_img}">' if b64_img else ''
+                    linea_img_tag = f'<img src="data:image/png;base64,{b64_img}" class="line-barcode">' if b64_img else ''
 
-                    # Richiamiamo la funzione esterna per stampare la card pulita e con font ingranditi
-                    st.markdown(render_logistics_card(citta_val, info_str, linea_val, img_tag), unsafe_allow_html=True)
+                    # Invocazione corretta con tutti e 5 i parametri previsti
+                    st.markdown(render_logistics_card(citta_val, info_str, linea_val, linea_img_tag, stat77_img_tag), unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
