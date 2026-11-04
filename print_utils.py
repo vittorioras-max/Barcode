@@ -11,11 +11,23 @@ def get_print_styles():
         color: #d1d5db !important;
         margin-bottom: 3px !important;
     }
+    
+    /* Intestazione STAT77 visibile a schermo sopra le card */
+    .stat77-header-block {
+        text-align: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #333;
+    }
+    .stat77-header-block img {
+        max-height: 45px;
+        width: auto;
+    }
 
     @media print {
-        /* Nasconde elementi superflui dell'interfaccia in stampa */
+        /* Nasconde elementi superflui dell'interfaccia, i bottoni e i sottotitoli delle sezioni */
         [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, 
-        .stButton, .stRadio, .stTextInput, .stAlert, button, h1, h2, p {
+        .stButton, .stRadio, .stTextInput, .stAlert, button, h2, h3, p, caption {
             display: none !important;
         }
         body, .stApp {
@@ -27,8 +39,32 @@ def get_print_styles():
         div[data-testid="stVerticalBlock"] {
             gap: 0px !important;
         }
+        
+        /* Titolo principale in cima alla pagina stampata con font più piccolo */
+        h1 {
+            font-size: 18px !important;
+            text-align: center !important;
+            margin-bottom: 5px !important;
+            color: black !important;
+        }
 
-        /* Card singole con STAT77 in cima ad ognuna */
+        /* Layout dello STAT77 in cima alla pagina stampata */
+        .stat77-header-block {
+            display: block !important;
+            text-align: center !important;
+            margin-top: 2px !important;
+            margin-bottom: 10px !important;
+            padding-bottom: 5px !important;
+            border-bottom: 1.5px solid #000 !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+        }
+        .stat77-header-block img {
+            max-height: 40px !important;
+            width: auto !important;
+        }
+
+        /* Card singole pulite (senza STAT77 interno) */
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
@@ -38,24 +74,6 @@ def get_print_styles():
             border-radius: 4px !important;
             background: white !important;
             width: 100% !important;
-        }
-        
-        /* Sezione STAT77 interna alla card */
-        .card-stat77-container {
-            text-align: center !important;
-            border-bottom: 1px dashed #bbb !important;
-            padding-bottom: 4px !important;
-            margin-bottom: 6px !important;
-        }
-        .card-stat77-title {
-            font-weight: bold !important;
-            font-size: 12px !important;
-            margin-bottom: 1px !important;
-            color: #000 !important;
-        }
-        .card-stat77-container img {
-            max-height: 36px !important;
-            width: auto !important;
         }
         
         /* Testi interni alla card */
@@ -92,14 +110,21 @@ def get_print_styles():
     </style>
     """
 
-def render_logistics_card(citta_val, info_str, linea_val, linea_img_tag, stat77_img_tag):
-    """Genera l'HTML di una singola card logistica con STAT77 incorporato in alto."""
+def render_stat77_header(stat77_img_tag):
+    """Genera il blocco unico STAT77 in cima alla pagina."""
+    if not stat77_img_tag:
+        return ""
+    return f"""
+    <div class="stat77-header-block">
+        <div style="font-weight: bold; font-size: 13px; margin-bottom: 2px;">STAT77</div>
+        {stat77_img_tag}
+    </div>
+    """
+
+def render_logistics_card(citta_val, info_str, linea_val, linea_img_tag):
+    """Genera l'HTML di una singola card logistica pulita."""
     return f"""
     <div class="print-card">
-        <div class="card-stat77-container">
-            <div class="card-stat77-title">STAT77</div>
-            {stat77_img_tag}
-        </div>
         <div class="print-card-title">🚚 {citta_val}</div>
         <div class="info-line">{info_str}<b>Linea:</b> <code>{linea_val}</code></div>
         <div style="text-align: center;">{linea_img_tag}</div>
