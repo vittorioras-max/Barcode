@@ -25,51 +25,53 @@ def get_print_styles():
     }
 
     @media print {
-        /* Nasconde elementi superflui dell'interfaccia, i bottoni e i sottotitoli delle sezioni */
+        /* Definiamo i margini della pagina per fare spazio all'intestazione fissa */
+        @page {
+            margin-top: 25mm;
+            margin-bottom: 15mm;
+            margin-left: 10mm;
+            margin-right: 10mm;
+        }
+
+        /* Nasconde elementi superflui dell'interfaccia in stampa */
         [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, 
-        .stButton, .stRadio, .stTextInput, .stAlert, button, h2, h3, p, caption {
+        .stButton, .stRadio, .stTextInput, .stAlert, button, h2, h3, p, caption, h1 {
             display: none !important;
         }
         body, .stApp {
             background: white !important;
             color: black !important;
             margin: 0 !important;
-            padding: 2mm !important;
+            padding: 0 !important;
         }
         div[data-testid="stVerticalBlock"] {
             gap: 0px !important;
         }
-        
-        /* Titolo principale in cima alla pagina stampata con font più piccolo */
-        h1 {
-            font-size: 18px !important;
-            text-align: center !important;
-            margin-bottom: 5px !important;
-            color: black !important;
-        }
 
-        /* Layout dello STAT77 in cima alla pagina stampata */
+        /* STAT77 fisso in cima a OGNI pagina stampata */
         .stat77-header-block {
             display: block !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
             text-align: center !important;
-            margin-top: 2px !important;
-            margin-bottom: 10px !important;
-            padding-bottom: 5px !important;
+            background: white !important;
+            padding-bottom: 4px !important;
             border-bottom: 1.5px solid #000 !important;
-            page-break-after: avoid !important;
-            break-after: avoid !important;
+            z-index: 9999 !important;
         }
         .stat77-header-block img {
-            max-height: 40px !important;
+            max-height: 38px !important;
             width: auto !important;
         }
 
-        /* Card singole pulite (senza STAT77 interno) */
+        /* Card singole pulite */
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
-            margin-bottom: 8px !important;
-            padding: 8px !important;
+            margin-bottom: 6px !important;
+            padding: 6px !important;
             border: 1.5px solid #999 !important;
             border-radius: 4px !important;
             background: white !important;
@@ -111,7 +113,7 @@ def get_print_styles():
     """
 
 def render_stat77_header(stat77_img_tag):
-    """Genera il blocco unico STAT77 in cima alla pagina."""
+    """Genera il blocco unico STAT77 in cima alla pagina a schermo."""
     if not stat77_img_tag:
         return ""
     return f"""
