@@ -6,12 +6,13 @@ def get_print_styles():
     return """
     <style>
     .top-main-header { text-align:center; padding-bottom:10px; border-bottom:2px solid #444; width:100%; margin-bottom:10px; }
-    .top-main-title { font-size:10px; font-weight:bold; margin-bottom:4px; }
+    .top-main-title { font-size:34px; font-weight:bold; margin-bottom:6px; }
+    .stat77-label { font-weight:bold; font-size:22px; letter-spacing:2px; margin-bottom:4px; }
     .stat77-header-block { text-align:center; margin-top:4px; }
     .stat77-header-block img { max-height:38px; width:auto; }
 
     .print-card { padding:8px 10px; border:1.5px solid #ccc; border-radius:6px; }
-    .print-card-title { font-weight:bold; font-size:15px; margin-bottom:3px; }
+    .print-card-title, .info-line, .line-code-highlight, .top-main-title, .stat77-label { color:black !important; }
     .info-line { font-size:13px; margin-bottom:3px; }
     .line-code-highlight { font-weight:bold; color:#4f46e5; }
     .line-barcode { max-height:45px; width:auto; margin-top:2px; }
@@ -58,8 +59,8 @@ def _header_inner(stat77_img_tag):
     stat = ""
     if stat77_img_tag:
         stat = f"""<div class="stat77-header-block">
-            <div style="font-weight:bold;font-size:11px;margin-bottom:1px;letter-spacing:1px;">STAT77</div>
-            {stat77_img_tag}</div>"""
+    <div class="stat77-label">STAT77</div>
+    {stat77_img_tag}</div>"""
     return f"""<div class="top-main-header">
         <div class="top-main-title">🚛 Generatore Barcode</div>{stat}</div>"""
 
