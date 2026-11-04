@@ -5,40 +5,40 @@ def get_print_styles():
     <style>
     .top-main-header {
         text-align: center;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
         border-bottom: 2px solid #444;
     }
     .top-main-title {
-        font-size: 22px;
+        font-size: 20px;
         font-weight: bold;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
     }
     .stat77-header-block {
         text-align: center;
-        margin-top: 6px;
+        margin-top: 4px;
     }
     .stat77-header-block img {
-        max-height: 42px;
+        max-height: 38px;
         width: auto;
     }
 
     .print-card {
-        margin-bottom: 12px;
-        padding: 10px;
+        margin-bottom: 10px;
+        padding: 8px 10px;
         border: 1.5px solid #ccc;
         border-radius: 6px;
     }
     
     .print-card-title {
         font-weight: bold;
-        font-size: 16px;
-        margin-bottom: 4px;
+        font-size: 15px;
+        margin-bottom: 3px;
     }
 
     .info-line {
-        font-size: 14px;
-        margin-bottom: 4px;
+        font-size: 13px;
+        margin-bottom: 3px;
     }
 
     .line-code-highlight {
@@ -47,9 +47,9 @@ def get_print_styles():
     }
 
     .line-barcode {
-        max-height: 50px;
+        max-height: 45px;
         width: auto;
-        margin-top: 4px;
+        margin-top: 2px;
     }
 
     @media print {
@@ -61,15 +61,35 @@ def get_print_styles():
         [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, .stButton, .stRadio, .stTextInput, .stAlert {
             display: none !important;
         }
+        
         body {
             background: white !important;
             color: black !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
+
+        /* Ottimizzazione estrema dei margini pagina per eliminare lo spazio vuoto in alto */
+        @page {
+            size: A4;
+            margin: 8mm 10mm 8mm 10mm;
+        }
+
+        .top-main-header {
+            margin-top: 0 !important;
+            margin-bottom: 10px !important;
+            padding-bottom: 6px !important;
+            /* Se supportato dal browser di stampa, ripete l'intestazione su ogni pagina */
+            break-inside: avoid;
+        }
+
         .print-card {
             page-break-inside: avoid;
             background: white !important;
             border: 1.5px solid #999 !important;
+            margin-bottom: 8px !important;
         }
+        
         .print-card-title, .info-line, .line-code-highlight, .top-main-title {
             color: black !important;
         }
@@ -84,7 +104,7 @@ def render_stat77_header(stat77_img_tag):
     <div class="top-main-header">
         <div class="top-main-title">🚛 Generatore Barcode</div>
         <div class="stat77-header-block">
-            <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px; letter-spacing: 1px;">STAT77</div>
+            <div style="font-weight: bold; font-size: 11px; margin-bottom: 1px; letter-spacing: 1px;">STAT77</div>
             {stat77_img_tag}
         </div>
     </div>
