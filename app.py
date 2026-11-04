@@ -5,16 +5,12 @@ from barcode.writer import ImageWriter
 import io
 import base64
 
-# Importiamo le funzioni pulite e lineari
 from print_utils import get_print_styles, render_stat77_header, render_logistics_card
 
-# Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
-# --- APPLICAZIONE DEGLI STILI ---
 st.markdown(get_print_styles(), unsafe_allow_html=True)
 
-# --- SISTEMA DI ACCESSO CON PIN / PASSWORD ---
 def check_password():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
@@ -41,7 +37,6 @@ def check_password():
 
 if check_password():
 
-    # --- FUNZIONE GENERAZIONE BARCODE ---
     def generate_barcode_base64(value):
         if not value or str(value).strip() == "" or str(value).strip().lower() == "nan" or str(value).strip() == "none":
             return None
@@ -55,10 +50,7 @@ if check_password():
         except Exception as e:
             return None
 
-    # --- INTESTAZIONE PRINCIPALE ---
-    st.title("🚚 Generatore Barcode Logistics")
-
-    # Generazione dello STAT77 iniziale
+    # Intestazione iniziale con camioncino e STAT77
     stat77_b64 = generate_barcode_base64("STAT77")
     stat77_img_tag = f'<img src="data:image/png;base64,{stat77_b64}">' if stat77_b64 else ''
     st.markdown(render_stat77_header(stat77_img_tag), unsafe_allow_html=True)
@@ -80,9 +72,6 @@ if check_password():
 
     st.markdown("---")
 
-    # ==========================================
-    # MODALITÀ 1: INSERIMENTO MANUALE
-    # ==========================================
     if "Modalità 1" in mode:
         st.subheader("📋 Inserimento Manuale")
 
@@ -106,9 +95,6 @@ if check_password():
                     st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
             st.markdown("---")
 
-    # ==========================================
-    # MODALITÀ 2: GOOGLE SHEETS AUTOMATICO
-    # ==========================================
     else:
         st.subheader("📊 Google Sheets: città_linea")
 
