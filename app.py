@@ -5,12 +5,16 @@ from barcode.writer import ImageWriter
 import io
 import base64
 
+# Importiamo le funzioni di grafica e stampa dal modulo esterno
 from print_utils import get_print_styles, render_stat77_header, render_logistics_card
 
+# Configurazione Pagina
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
+# --- APPLICAZIONE DEGLI STILI ESTERNI ---
 st.markdown(get_print_styles(), unsafe_allow_html=True)
 
+# --- SISTEMA DI ACCESSO CON PIN / PASSWORD ---
 def check_password():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
@@ -37,6 +41,7 @@ def check_password():
 
 if check_password():
 
+    # --- FUNZIONE GENERAZIONE BARCODE ---
     def generate_barcode_base64(value):
         if not value or str(value).strip() == "" or str(value).strip().lower() == "nan" or str(value).strip() == "none":
             return None
@@ -50,7 +55,10 @@ if check_password():
         except Exception as e:
             return None
 
-    # Intestazione iniziale con camioncino e STAT77
+    # --- INTESTAZIONE E SELETTORE MODALITÀ ---
+    st.title("🚚 Generatore Barcode Logistics")
+    
+    # Generazione STAT77 sotto il titolo (visibile solo in stampa tramite modulo esterno)
     stat77_b64 = generate_barcode_base64("STAT77")
     stat77_img_tag = f'<img src="data:image/png;base64,{stat77_b64}">' if stat77_b64 else ''
     st.markdown(render_stat77_header(stat77_img_tag), unsafe_allow_html=True)
@@ -60,6 +68,8 @@ if check_password():
         if st.button("🔒 Blocca / Esci"):
             st.session_state.authenticated = False
             st.rerun()
+        st.markdown("---")
+        st.info("💡 **Nota Stampa:**\nLayout a singola colonna con box ordinati e font ottimizzati.")
 
     mode = st.radio(
         "Seleziona la modalità di lavoro:",
@@ -72,8 +82,12 @@ if check_password():
 
     st.markdown("---")
 
+    # ==========================================
+    # MODALITÀ 1: INSERIMENTO MANUALE
+    # ==========================================
     if "Modalità 1" in mode:
         st.subheader("📋 Inserimento Manuale")
+        st.caption("Inserisci manualmente i dati per fino a 12 linee.")
 
         if "manual_data" not in st.session_state:
             st.session_state.manual_data = [{"destinazione": "", "targa": "", "partenza": "", "linea": ""} for _ in range(12)]
@@ -95,8 +109,12 @@ if check_password():
                     st.image(f"data:image/png;base64,{b64_img}", use_container_width=True)
             st.markdown("---")
 
+    # ==========================================
+    # MODALITÀ 2: GOOGLE SHEETS AUTOMATICO
+    # ==========================================
     else:
         st.subheader("📊 Google Sheets: città_linea")
+        st.caption("Lettura automatica in tempo reale dal foglio Google.")
 
         SHEET_ID = "1-EM7rpDYaj1VF_JvFCD6rAdwVox_adkJdFkgqmN30Ew"
         CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
@@ -110,8 +128,11 @@ if check_password():
 
         try:
             df = load_sheet_data(CSV_URL)
+            
+            # Pulizia nomi colonne
             df.columns = [str(col).strip().lower() for col in df.columns]
 
+            # Converte in stringa e rimuove il .0 se presente
             if 'linea' in df.columns:
                 df['linea'] = df['linea'].astype(str).str.replace('.0', '', regex=False)
                 df_valid = df[df['linea'].str.lower() != 'nan'].copy()
@@ -121,7 +142,7 @@ if check_password():
             if df_valid.empty:
                 st.warning("Il foglio Google non contiene righe con numeri di linea compilati.")
             else:
-                st.success(f"Caricate {len(df_valid)} linee dal foglio!")
+                st.success(f"Caricate {len(df_valid)} linee in ordine dal foglio!")
                 
                 for idx, row in df_valid.reset_index(drop=True).iterrows():
                     citta_val = str(row.get('città', '')).replace('nan', '').strip()
@@ -132,6 +153,7 @@ if check_password():
                     if not linea_val or linea_val == '':
                         continue
 
+                    # Prepariamo la stringa con targa e orario di partenza
                     info_parts = []
                     if targa_val and targa_val.lower() != 'nan':
                         info_parts.append(f"Targa: {targa_val}")
@@ -143,9 +165,10 @@ if check_password():
                         info_str += " &nbsp;|&nbsp; "
 
                     b64_img = generate_barcode_base64(linea_val)
-                    linea_img_tag = f'<img src="data:image/png;base64,{b64_img}" class="line-barcode">' if b64_img else ''
+                    img_tag = f'<img src="data:image/png;base64,{b64_img}">' if b64_img else ''
 
-                    st.markdown(render_logistics_card(citta_val, info_str, linea_val, linea_img_tag), unsafe_allow_html=True)
+                    # Richiamiamo la funzione esterna per stampare la card pulita e con font ingranditi
+                    st.markdown(render_logistics_card(citta_val, info_str, linea_val, img_tag), unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
