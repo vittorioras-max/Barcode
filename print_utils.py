@@ -13,7 +13,7 @@ def get_print_styles():
     }
 
     @media print {
-        /* Nasconde intestazioni globali, titoli, descrizioni e comandi in stampa */
+        /* Nasconde elementi superflui dell'interfaccia in stampa */
         [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, 
         .stButton, .stRadio, .stTextInput, .stAlert, button, h1, h2, p {
             display: none !important;
@@ -28,7 +28,7 @@ def get_print_styles():
             gap: 0px !important;
         }
 
-        /* Card singole ottimizzate con STAT77 integrato in cima ad ognuna */
+        /* Card singole con STAT77 in cima ad ognuna */
         .print-card {
             page-break-inside: avoid;
             break-inside: avoid;
@@ -81,7 +81,7 @@ def get_print_styles():
             font-weight: bold !important;
         }
         
-        /* Barcode principale della linea */
+        /* Barcode della linea */
         .line-barcode {
             max-height: 48px !important;
             max-width: 100% !important;
