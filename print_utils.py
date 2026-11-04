@@ -1,112 +1,101 @@
 # --- print_utils.py ---
-# Modulo esterno per la gestione della grafica, dei CSS di stampa e dei layout delle card
 
 def get_print_styles():
-    """Restituisce il blocco CSS ottimizzato per la stampa e la schermata."""
     return """
     <style>
-    /* Stile testi informativi a schermo */
-    .info-line {
-        font-size: 14px !important;
-        color: #d1d5db !important;
-        margin-bottom: 3px !important;
+    .top-main-header {
+        text-align: center;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #444;
+    }
+    .top-main-title {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 6px;
+    }
+    .stat77-header-block {
+        text-align: center;
+        margin-top: 6px;
+    }
+    .stat77-header-block img {
+        max-height: 42px;
+        width: auto;
+    }
+
+    .print-card {
+        margin-bottom: 12px;
+        padding: 10px;
+        border: 1.5px solid #ccc;
+        border-radius: 6px;
     }
     
-    /* Nascosto a schermo normale, visibile solo in stampa */
-    .print-header-stat77 {
-        display: none;
+    .print-card-title {
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+
+    .info-line {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .line-code-highlight {
+        font-weight: bold;
+        color: #4f46e5;
+    }
+
+    .line-barcode {
+        max-height: 50px;
+        width: auto;
+        margin-top: 4px;
     }
 
     @media print {
-        /* Nasconde elementi superflui dell'interfaccia in stampa */
-        [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, 
-        .stButton, .stRadio, .stTextInput, .stAlert, button {
+        /* Nasconde la scritta e il blocco di Google Sheets solo in stampa */
+        div:has(> h3) {
             display: none !important;
         }
-        body, .stApp {
+
+        [data-testid="stSidebar"], [data-testid="stHeader"], header, footer, .stButton, .stRadio, .stTextInput, .stAlert {
+            display: none !important;
+        }
+        body {
             background: white !important;
             color: black !important;
-            margin: 0 !important;
-            padding: 2mm !important;
         }
-        div[data-testid="stVerticalBlock"] {
-            gap: 0px !important;
-        }
-        
-        /* Barcode STAT77 in cima alla stampa sotto il titolo */
-        .print-header-stat77 {
-            display: block !important;
-            width: 100% !important;
-            text-align: center !important;
-            margin-top: 5px !important;
-            margin-bottom: 12px !important;
-            padding-bottom: 5px !important;
-            border-bottom: 2px solid #000 !important;
-            page-break-after: avoid !important;
-            break-after: avoid !important;
-        }
-
-        /* Card singole ottimizzate per la stampa con font più grandi e leggibili */
         .print-card {
             page-break-inside: avoid;
-            break-inside: avoid;
-            margin-bottom: 8px !important;
-            padding: 8px !important;
-            border: 1.5px solid #999 !important;
-            border-radius: 4px !important;
             background: white !important;
-            width: 100% !important;
+            border: 1.5px solid #999 !important;
         }
-        
-        /* Testi interni alla card ingranditi per massima leggibilità */
-        .print-card-title {
-            font-weight: bold !important;
-            font-size: 20px !important;
-            margin-bottom: 4px !important;
-            color: #000 !important;
-        }
-        
-        .info-line {
-            color: #000 !important;
-            font-size: 15px !important;
-            font-weight: 500 !important;
-        }
-        
-        code {
-            background: none !important;
-            color: #000 !important;
-            border: none !important;
-            padding: 0 !important;
-            font-size: 16px !important;
-            font-weight: bold !important;
-        }
-        
-        /* Barcode stampabile ben proporzionato */
-        img {
-            max-height: 52px !important;
-            max-width: 100% !important;
-            width: auto !important;
-            margin-top: 4px !important;
+        .print-card-title, .info-line, .line-code-highlight, .top-main-title {
+            color: black !important;
         }
     }
     </style>
     """
 
 def render_stat77_header(stat77_img_tag):
-    """Restituisce l'intestazione STAT77 per la stampa."""
+    if not stat77_img_tag:
+        return ""
     return f"""
-        <div class="print-header-stat77">
-            <div style="font-weight: bold; font-size: 15px; margin-bottom: 2px;">STAT77</div>
+    <div class="top-main-header">
+        <div class="top-main-title">🚚 Generatore Barcode Logistics</div>
+        <div class="stat77-header-block">
+            <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px; letter-spacing: 1px;">STAT77</div>
             {stat77_img_tag}
         </div>
-    """
-
-def render_logistics_card(citta_val, info_str, linea_val, img_tag):
-    """Genera l'HTML di una singola card logistica pulita e con font ingranditi per la stampa."""
-    return f"""
-    <div class="print-card">
-        <div class="print-card-title">🚚 {citta_val}</div>
-        <div class="info-line">{info_str}<b>Linea:</b> <code>{linea_val}</code></div>
-        {img_tag}
     </div>
     """
+
+def render_logistics_card(citta_val, info_str, linea_val, linea_img_tag):
+    return f"""
+    <div class="print-card">
+        <div class="print-card-title">Destinazione: {citta_val}</div>
+        <div class="info-line">{info_str}<b>Linea:</b> <span class="line-code-highlight">{linea_val}</span></div>
+        <div style="text-align: center;">{linea_img_tag}</div>
+    </div>
+    """
+    
