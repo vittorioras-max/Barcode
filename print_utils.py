@@ -82,7 +82,7 @@ def render_stat77_header(stat77_img_tag):
         return ""
     return f"""
     <div class="top-main-header">
-        <div class="top-main-title">🚚 Generatore Barcode Logistics</div>
+        <div class="top-main-title">🚛 Generatore Barcode</div>
         <div class="stat77-header-block">
             <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px; letter-spacing: 1px;">STAT77</div>
             {stat77_img_tag}
