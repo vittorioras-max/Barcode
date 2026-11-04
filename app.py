@@ -5,7 +5,12 @@ from barcode.writer import ImageWriter
 import io
 import base64
 
-from print_utils import get_print_styles, render_stat77_header, render_logistics_card
+from print_utils import (
+    get_print_styles,
+    render_stat77_header,
+    render_logistics_card,
+    render_print_table,
+)
 
 st.set_page_config(page_title="Generatore Barcode Logistics", page_icon="🚚", layout="centered")
 
@@ -50,7 +55,7 @@ if check_password():
         except Exception as e:
             return None
 
-    # Intestazione con il titolo e STAT77 (visibile sia a video che in stampa)
+    # Intestazione con il titolo e STAT77 (visibile a video)
     stat77_b64 = generate_barcode_base64("STAT77")
     stat77_img_tag = f'<img src="data:image/png;base64,{stat77_b64}">' if stat77_b64 else ''
     st.markdown(render_stat77_header(stat77_img_tag), unsafe_allow_html=True)
@@ -122,7 +127,9 @@ if check_password():
                 st.warning("Il foglio Google non contiene righe con numeri di linea compilati.")
             else:
                 st.success(f"Caricate {len(df_valid)} linee dal foglio!")
-                
+
+                cards = []
+
                 for idx, row in df_valid.reset_index(drop=True).iterrows():
                     citta_val = str(row.get('città', '')).replace('nan', '').strip()
                     linea_val = str(row.get('linea', '')).replace('nan', '').strip()
@@ -145,7 +152,10 @@ if check_password():
                     b64_img = generate_barcode_base64(linea_val)
                     linea_img_tag = f'<img src="data:image/png;base64,{b64_img}" class="line-barcode">' if b64_img else ''
 
-                    st.markdown(render_logistics_card(citta_val, info_str, linea_val, linea_img_tag), unsafe_allow_html=True)
+                    cards.append(render_logistics_card(citta_val, info_str, linea_val, linea_img_tag))
+
+                # Un'unica tabella: il thead (STAT77) si ripete a ogni pagina stampata
+                st.markdown(render_print_table(stat77_img_tag, cards), unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"Errore durante il caricamento del foglio Google: {e}")
