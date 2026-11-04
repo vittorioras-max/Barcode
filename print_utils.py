@@ -1,5 +1,4 @@
 # --- print_utils.py ---
-# Modulo esterno per la gestione della grafica, dei CSS di stampa e dei layout delle card
 
 def get_print_styles():
     """Restituisce il blocco CSS ottimizzato per la stampa e la schermata."""
