@@ -50,7 +50,7 @@ if check_password():
         except Exception as e:
             return None
 
-    # Intestazione iniziale con il camioncino e il titolo dell'app
+    # Intestazione con il titolo e STAT77 (visibile sia a video che in stampa)
     stat77_b64 = generate_barcode_base64("STAT77")
     stat77_img_tag = f'<img src="data:image/png;base64,{stat77_b64}">' if stat77_b64 else ''
     st.markdown(render_stat77_header(stat77_img_tag), unsafe_allow_html=True)
