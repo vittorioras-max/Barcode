@@ -12,7 +12,7 @@ def get_print_styles():
     .stat77-header-block img { max-height:38px; width:auto; }
 
     .print-card { padding:8px 10px; border:1.5px solid #ccc; border-radius:6px; }
-    .print-card-title, .info-line, .line-code-highlight, .top-main-title, .stat77-label { color:red !important; }
+    .print-card-title, .info-line, .line-code-highlight, .top-main-title, .stat77-label { color: black !important; }
     .info-line { font-size:13px; margin-bottom:3px; }
     .line-code-highlight { font-weight:bold; color:#4f46e5; }
     .line-barcode { max-height:45px; width:auto; margin-top:2px; }
